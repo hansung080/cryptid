@@ -10,7 +10,7 @@ _explorers = [
     Explorer(
         name="Noah Weiser",
         country="DE",
-        description="Has poor eyesight and carries an axe"
+        description="Has poor eyesight and carries an axe",
     ),
 ]
 

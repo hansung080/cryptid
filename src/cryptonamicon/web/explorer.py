@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-import cryptonamicon.fake.explorer as service
+import cryptonamicon.service.explorer as service
 
 from cryptonamicon.model.explorer import Explorer
 

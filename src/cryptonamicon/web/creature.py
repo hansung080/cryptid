@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-import cryptonamicon.fake.creature as service
+import cryptonamicon.service.creature as service
 
 from cryptonamicon.model.creature import Creature
 

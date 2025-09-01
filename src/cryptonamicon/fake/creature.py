@@ -1,5 +1,5 @@
+from cryptonamicon.error import EntityNotFoundError
 from cryptonamicon.model.creature import Creature
-
 
 _creatures = [
     Creature(
@@ -28,26 +28,26 @@ def get_all() -> list[Creature]:
     return _creatures
 
 
-def get_one(name: str) -> Creature | None:
+def get_one(name: str) -> Creature:
     for _creature in _creatures:
         if _creature.name == name:
             return _creature
-    return None
+    raise EntityNotFoundError(entity="creature", key=name)
 
 
-def replace(name: str, creature: Creature) -> Creature | None:
+def replace(name: str, creature: Creature) -> Creature:
     # TODO: To implement the body.
     return creature
 
 
-def modify(name: str, creature: Creature) -> Creature | None:
+def modify(name: str, creature: Creature) -> Creature:
     # TODO: To implement the body.
     return creature
 
 
-def delete(name: str) -> bool:
+def delete(name: str) -> None:
     # TODO: To implement the body.
     for _creature in _creatures:
         if _creature.name == name:
-            return True
-    return False
+            return
+    raise EntityNotFoundError(entity="creature", key=name)

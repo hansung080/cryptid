@@ -394,3 +394,11 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,linux,windows,intellij+all,visualstudiocode,sublimetext,python
+
+# Added by hansung080
+
+# Database
+db/
+*.db
+
+# End of hansung080

@@ -23,6 +23,7 @@ server = "src.cryptonamicon.main:run"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
+pytest-env = "^1.1.5"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -32,3 +33,6 @@ build-backend = "poetry.core.masonry.api"
 testpaths = ["tests"]
 addopts = ["-v", "--strict-config", "--strict-markers"]
 xfail_strict = true
+env = [
+    "CRYPTID_SQLITE_DB=:memory:",
+]

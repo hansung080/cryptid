@@ -1,9 +1,7 @@
 import uvicorn
-
 from fastapi import FastAPI
 
 from cryptonamicon.web import explorer, creature
-
 
 app = FastAPI()
 app.include_router(explorer.router)
@@ -11,6 +9,7 @@ app.include_router(creature.router)
 
 
 @app.get("/echo/{thing}")
+@app.get("/echo/{thing}/")
 def echo(thing: str) -> str:
     return thing
 

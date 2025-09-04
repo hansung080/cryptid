@@ -24,7 +24,7 @@ def model_to_dict(explorer: Explorer) -> dict:
     return explorer.model_dump()
 
 
-def create(explorer: Explorer, no_select: bool = False) -> Explorer:
+def create(explorer: Explorer, select: bool = True) -> Explorer:
     sql = """
     INSERT INTO explorer (name, country, description)
     VALUES (:name, :country, :description)
@@ -36,7 +36,7 @@ def create(explorer: Explorer, no_select: bool = False) -> Explorer:
             raise EntityAlreadyExistsError(entity="explorer", key=explorer.name)
         else:
             raise e
-    return get_one(explorer.name) if not no_select else explorer
+    return get_one(explorer.name) if select else explorer
 
 
 def get_all() -> list[Explorer]:
@@ -62,7 +62,7 @@ def get_one(name: str) -> Explorer:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def modify(name: str, explorer: Explorer, no_select: bool = False) -> Explorer:
+def modify(name: str, explorer: Explorer, select: bool = True) -> Explorer:
     sql = """
     UPDATE explorer
     SET name = :name,
@@ -74,7 +74,7 @@ def modify(name: str, explorer: Explorer, no_select: bool = False) -> Explorer:
     params["k_name"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(explorer.name) if not no_select else explorer
+        return get_one(explorer.name) if select else explorer
     else:
         raise EntityNotFoundError(entity="explorer", key=name)
 

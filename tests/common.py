@@ -3,5 +3,5 @@ import itertools
 _counter = itertools.count(start=1)
 
 
-def count():
+def count() -> int:
     return next(_counter)

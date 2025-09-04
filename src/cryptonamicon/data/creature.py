@@ -28,7 +28,7 @@ def model_to_dict(creature: Creature) -> dict:
     return creature.model_dump()
 
 
-def create(creature: Creature, no_select: bool = False) -> Creature:
+def create(creature: Creature, select: bool = True) -> Creature:
     sql = """
     INSERT INTO creature (name, country, area, description, aka)
     VALUES (:name, :country, :area, :description, :aka)
@@ -40,7 +40,7 @@ def create(creature: Creature, no_select: bool = False) -> Creature:
             raise EntityAlreadyExistsError(entity="creature", key=creature.name)
         else:
             raise e
-    return get_one(creature.name) if not no_select else creature
+    return get_one(creature.name) if select else creature
 
 
 def get_all() -> list[Creature]:
@@ -66,7 +66,7 @@ def get_one(name: str) -> Creature:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def modify(name: str, creature: Creature, no_select: bool = False) -> Creature:
+def modify(name: str, creature: Creature, select: bool = True) -> Creature:
     sql = """
     UPDATE creature
     SET name = :name,
@@ -80,7 +80,7 @@ def modify(name: str, creature: Creature, no_select: bool = False) -> Creature:
     params["k_name"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(creature.name) if not no_select else creature
+        return get_one(creature.name) if select else creature
     else:
         raise EntityNotFoundError(entity="creature", key=name)
 

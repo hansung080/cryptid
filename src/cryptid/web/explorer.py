@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
-import cryptonamicon.service.explorer as service
-from cryptonamicon.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptonamicon.model.explorer import Explorer
+import cryptid.service.explorer as service
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
+from cryptid.model.explorer import Explorer
 
 router = APIRouter(prefix="/explorer")
 

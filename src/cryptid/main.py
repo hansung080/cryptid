@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from cryptonamicon.web import explorer, creature
+from cryptid.web import explorer, creature
 
 app = FastAPI()
 app.include_router(explorer.router)
@@ -14,7 +14,7 @@ def echo(thing: str) -> str:
     return thing
 
 
-def run(application: str = "src.cryptonamicon.main:app") -> None:
+def run(application: str = "src.cryptid.main:app") -> None:
     uvicorn.run(application, reload=True)
 
 

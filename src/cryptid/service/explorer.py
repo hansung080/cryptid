@@ -1,5 +1,5 @@
-import cryptonamicon.data.explorer as data
-from cryptonamicon.model.explorer import Explorer
+import cryptid.data.explorer as data
+from cryptid.model.explorer import Explorer
 
 
 def create(explorer: Explorer) -> Explorer:

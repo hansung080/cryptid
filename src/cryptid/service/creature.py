@@ -1,5 +1,5 @@
-import cryptonamicon.data.creature as data
-from cryptonamicon.model.creature import Creature
+import cryptid.data.creature as data
+from cryptid.model.creature import Creature
 
 
 def create(creature: Creature) -> Creature:

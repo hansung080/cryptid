@@ -1,8 +1,8 @@
 import pytest
 
-import cryptonamicon.data.creature as data
-from cryptonamicon.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptonamicon.model.creature import Creature
+import cryptid.data.creature as data
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
+from cryptid.model.creature import Creature
 
 from tests.common import count
 

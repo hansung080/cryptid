@@ -1,8 +1,8 @@
 import pytest
 
-import cryptonamicon.service.explorer as service
-from cryptonamicon.error import EntityNotFoundError
-from cryptonamicon.model.explorer import Explorer
+import cryptid.service.explorer as service
+from cryptid.error import EntityNotFoundError
+from cryptid.model.explorer import Explorer
 
 from tests.common import count
 

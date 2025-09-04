@@ -1,5 +1,5 @@
-from cryptonamicon.error import EntityNotFoundError
-from cryptonamicon.model.creature import Creature
+from cryptid.error import EntityNotFoundError
+from cryptid.model.creature import Creature
 
 _creatures = [
     Creature(

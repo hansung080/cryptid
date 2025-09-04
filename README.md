@@ -1,2 +1,2 @@
-# Cryptonamicon
-A web game with FastAPI
+# Cryptid
+A web application with FastAPI

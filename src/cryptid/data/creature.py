@@ -1,6 +1,6 @@
-from cryptonamicon.data.init import cursor, IntegrityError
-from cryptonamicon.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptonamicon.model.creature import Creature
+from cryptid.data.init import cursor, IntegrityError
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
+from cryptid.model.creature import Creature
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS creature (

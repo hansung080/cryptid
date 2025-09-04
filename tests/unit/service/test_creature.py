@@ -1,8 +1,8 @@
 import pytest
 
-import cryptonamicon.service.creature as service
-from cryptonamicon.error import EntityNotFoundError
-from cryptonamicon.model.creature import Creature
+import cryptid.service.creature as service
+from cryptid.error import EntityNotFoundError
+from cryptid.model.creature import Creature
 
 from tests.common import count
 

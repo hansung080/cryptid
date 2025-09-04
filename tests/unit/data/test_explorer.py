@@ -1,8 +1,8 @@
 import pytest
 
-import cryptonamicon.data.explorer as data
-from cryptonamicon.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptonamicon.model.explorer import Explorer
+import cryptid.data.explorer as data
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
+from cryptid.model.explorer import Explorer
 
 from tests.common import count
 

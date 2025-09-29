@@ -1,5 +1,11 @@
-import cryptid.data.creature as data
+import os
+
 from cryptid.model.creature import Creature
+
+if not os.getenv("CRYPTID_UNIT_TEST"):
+    from cryptid.data import creature as data
+else:
+    from cryptid.fake import creature as data
 
 
 def create(creature: Creature) -> Creature:
@@ -15,7 +21,7 @@ def get_one(name: str) -> Creature:
 
 
 def replace(name: str, creature: Creature) -> Creature:
-    return data.modify(name, creature)
+    return data.replace(name, creature)
 
 
 def modify(name: str, creature: Creature) -> Creature:

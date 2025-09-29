@@ -1,10 +1,11 @@
 import pytest
+from fastapi import HTTPException
 
-from cryptid.data import explorer as data
-from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer
+from cryptid.web import explorer as web
 
 from tests.common import count
+from tests.unit.web.common import assert_already_exists_error, assert_not_found_error
 
 key_num = count()
 
@@ -28,55 +29,60 @@ def noah() -> Explorer:
 
 
 def test_create(claude: Explorer) -> None:
-    resp = data.create(claude)
+    resp = web.create(claude)
     assert resp == claude
 
 
 def test_create_already_exists(claude: Explorer) -> None:
-    with pytest.raises(EntityAlreadyExistsError):
-        _ = data.create(claude)
+    with pytest.raises(HTTPException) as e:
+        _ = web.create(claude)
+        assert_already_exists_error(e)
 
 
 def test_get_all() -> None:
-    resp = data.get_all()
+    resp = web.get_all()
     assert len(resp) > 0
 
 
 def test_get_one(claude: Explorer) -> None:
-    resp = data.get_one(claude.name)
+    resp = web.get_one(claude.name)
     assert resp == claude
 
 
 def test_get_one_not_found(noah: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        _ = data.get_one(noah.name)
+    with pytest.raises(HTTPException) as e:
+        _ = web.get_one(noah.name)
+        assert_not_found_error(e)
 
 
 def test_replace(claude: Explorer, noah: Explorer) -> None:
-    resp = data.replace(claude.name, noah)
+    resp = web.replace(claude.name, noah)
     assert resp == noah
 
 
 def test_replace_not_found(claude: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        _ = data.replace(claude.name, claude)
+    with pytest.raises(HTTPException) as e:
+        _ = web.replace(claude.name, claude)
+        assert_not_found_error(e)
 
 
 def test_modify(noah: Explorer) -> None:
     noah.description = f"I'm Noah Weiser {key_num}"
-    resp = data.modify(noah.name, noah)
+    resp = web.modify(noah.name, noah)
     assert resp == noah
 
 
 def test_modify_not_found(claude: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        _ = data.modify(claude.name, claude)
+    with pytest.raises(HTTPException) as e:
+        _ = web.modify(claude.name, claude)
+        assert_not_found_error(e)
 
 
 def test_delete(noah: Explorer) -> None:
-    assert data.delete(noah.name) is None
+    assert web.delete(noah.name) is None
 
 
 def test_delete_not_found(noah: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        data.delete(noah.name)
+    with pytest.raises(HTTPException) as e:
+        web.delete(noah.name)
+        assert_not_found_error(e)

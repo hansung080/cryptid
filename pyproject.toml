@@ -8,9 +8,13 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi (>=0.116.1,<0.117.0)",
-    "uvicorn (>=0.35.0,<0.36.0)",
-    "pydantic (>=2.11.7,<3.0.0)"
+    "fastapi[all] (>=0.116.1,<0.117.0)",
+    "uvicorn[standard] (>=0.35.0,<0.36.0)",
+    "pydantic (>=2.11.9,<3.0.0)",
+    "starlette (>=0.47.3,<1.0.0)",
+    "bcrypt (>=4.3.0,<5.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "python-jose[cryptography] (>=3.5.0,<4.0.0)"
 ]
 
 [tool.poetry]
@@ -22,8 +26,9 @@ packages = [
 server = "src.cryptid.main:run"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.4.1"
+pytest = "^8.4.2"
 pytest-env = "^1.1.5"
+httpx = "^0.28.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -31,7 +36,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-v", "--strict-config", "--strict-markers"]
+addopts = ["--strict-config", "--strict-markers"]
 xfail_strict = true
 env = [
     "CRYPTID_SQLITE_DB=:memory:",

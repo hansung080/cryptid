@@ -1,3 +1,5 @@
+from typing import Any, TypeAlias
+
 from cryptid.data.init import cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature
@@ -12,8 +14,14 @@ CREATE TABLE IF NOT EXISTS creature (
 )
 """)
 
+CreatureRow: TypeAlias = tuple[str, str, str, str, str]
 
-def row_to_model(row: tuple) -> Creature:
+
+def model_to_dict(creature: Creature) -> dict[str, Any]:
+    return creature.model_dump()
+
+
+def row_to_model(row: CreatureRow) -> Creature:
     name, country, area, description, aka = row
     return Creature(
         name=name,
@@ -24,11 +32,7 @@ def row_to_model(row: tuple) -> Creature:
     )
 
 
-def model_to_dict(creature: Creature) -> dict:
-    return creature.model_dump()
-
-
-def create(creature: Creature, select: bool = True) -> Creature:
+def create(creature: Creature, *, fetch: bool = True) -> Creature:
     sql = """
     INSERT INTO creature (name, country, area, description, aka)
     VALUES (:name, :country, :area, :description, :aka)
@@ -40,7 +44,7 @@ def create(creature: Creature, select: bool = True) -> Creature:
             raise EntityAlreadyExistsError(entity="creature", key=creature.name)
         else:
             raise e
-    return get_one(creature.name) if select else creature
+    return get_one(creature.name) if fetch else creature
 
 
 def get_all() -> list[Creature]:
@@ -59,14 +63,13 @@ def get_one(name: str) -> Creature:
     WHERE name = :name
     """
     cursor.execute(sql, {"name": name})
-    row = cursor.fetchone()
-    if row:
+    if row := cursor.fetchone():
         return row_to_model(row)
     else:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def modify(name: str, creature: Creature, select: bool = True) -> Creature:
+def replace(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
     sql = """
     UPDATE creature
     SET name = :name,
@@ -74,15 +77,19 @@ def modify(name: str, creature: Creature, select: bool = True) -> Creature:
         area = :area,
         description = :description,
         aka = :aka
-    WHERE name = :k_name
+    WHERE name = :name_old
     """
     params = model_to_dict(creature)
-    params["k_name"] = name
+    params["name_old"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(creature.name) if select else creature
+        return get_one(creature.name) if fetch else creature
     else:
         raise EntityNotFoundError(entity="creature", key=name)
+
+
+def modify(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
+    return replace(name, creature, fetch=fetch)
 
 
 def delete(name: str) -> None:

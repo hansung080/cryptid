@@ -1,8 +1,8 @@
 import pytest
 
-import cryptid.service.explorer as service
-from cryptid.error import EntityNotFoundError
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer
+from cryptid.service import explorer as service
 
 from tests.common import count
 
@@ -18,9 +18,28 @@ def claude() -> Explorer:
     )
 
 
+@pytest.fixture
+def noah() -> Explorer:
+    return Explorer(
+        name=f"Noah Weiser {key_num}",
+        country="DE",
+        description="Has poor eyesight and carries an axe",
+    )
+
+
 def test_create(claude: Explorer) -> None:
     resp = service.create(claude)
     assert resp == claude
+
+
+def test_create_already_exists(claude: Explorer) -> None:
+    with pytest.raises(EntityAlreadyExistsError):
+        _ = service.create(claude)
+
+
+def test_get_all() -> None:
+    resp = service.get_all()
+    assert len(resp) > 0
 
 
 def test_get_one(claude: Explorer) -> None:
@@ -28,6 +47,36 @@ def test_get_one(claude: Explorer) -> None:
     assert resp == claude
 
 
-def test_get_one_not_found() -> None:
+def test_get_one_not_found(noah: Explorer) -> None:
     with pytest.raises(EntityNotFoundError):
-        _ = service.get_one("missing")
+        _ = service.get_one(noah.name)
+
+
+def test_replace(claude: Explorer, noah: Explorer) -> None:
+    resp = service.replace(claude.name, noah)
+    assert resp == noah
+
+
+def test_replace_not_found(claude: Explorer) -> None:
+    with pytest.raises(EntityNotFoundError):
+        _ = service.replace(claude.name, claude)
+
+
+def test_modify(noah: Explorer) -> None:
+    noah.description = f"I'm Noah Weiser {key_num}"
+    resp = service.modify(noah.name, noah)
+    assert resp == noah
+
+
+def test_modify_not_found(claude: Explorer) -> None:
+    with pytest.raises(EntityNotFoundError):
+        _ = service.modify(claude.name, claude)
+
+
+def test_delete(noah: Explorer) -> None:
+    assert service.delete(noah.name) is None
+
+
+def test_delete_not_found(noah: Explorer) -> None:
+    with pytest.raises(EntityNotFoundError):
+        service.delete(noah.name)

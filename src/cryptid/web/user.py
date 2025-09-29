@@ -4,34 +4,34 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.explorer import Explorer
+from cryptid.model.user import PublicUser, SignInUser
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
-    from cryptid.service import explorer as service
+    from cryptid.service import user as service
 else:
-    from cryptid.fake import explorer as service
+    from cryptid.fake import user as service
 
-router = APIRouter(prefix="/explorer")
+router = APIRouter(prefix="/user")
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create(explorer: Explorer) -> Explorer:
+def create(user: SignInUser) -> PublicUser:
     try:
-        return service.create(explorer)
+        return service.create(user)
     except EntityAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.get("")
 @router.get("/")
-def get_all() -> list[Explorer]:
+def get_all() -> list[PublicUser]:
     return service.get_all()
 
 
 @router.get("/{name}")
 @router.get("/{name}/")
-def get_one(name: str) -> Explorer:
+def get_one(name: str) -> PublicUser:
     try:
         return service.get_one(name)
     except EntityNotFoundError as e:
@@ -40,18 +40,18 @@ def get_one(name: str) -> Explorer:
 
 @router.put("/{name}")
 @router.put("/{name}/")
-def replace(name: str, explorer: Explorer) -> Explorer:
+def replace(name: str, user: PublicUser) -> PublicUser:
     try:
-        return service.replace(name, explorer)
+        return service.replace(name, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.patch("/{name}")
 @router.patch("/{name}/")
-def modify(name: str, explorer: Explorer) -> Explorer:
+def modify(name: str, user: PublicUser) -> PublicUser:
     try:
-        return service.modify(name, explorer)
+        return service.modify(name, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -63,3 +63,5 @@ def delete(name: str) -> None:
         service.delete(name)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

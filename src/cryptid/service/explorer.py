@@ -1,5 +1,11 @@
-import cryptid.data.explorer as data
+import os
+
 from cryptid.model.explorer import Explorer
+
+if not os.getenv("CRYPTID_UNIT_TEST"):
+    from cryptid.data import explorer as data
+else:
+    from cryptid.fake import explorer as data
 
 
 def create(explorer: Explorer) -> Explorer:
@@ -15,7 +21,7 @@ def get_one(name: str) -> Explorer:
 
 
 def replace(name: str, explorer: Explorer) -> Explorer:
-    return data.modify(name, explorer)
+    return data.replace(name, explorer)
 
 
 def modify(name: str, explorer: Explorer) -> Explorer:

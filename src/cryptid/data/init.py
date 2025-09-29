@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from sqlite3 import connect, Connection, Cursor, IntegrityError
 
+__all__ = ["conn", "cursor", "IntegrityError"]
+
 conn: Connection | None = None
 cursor: Cursor | None = None
 

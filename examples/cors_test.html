@@ -1,0 +1,42 @@
+<!--
+프론트엔드 서버 실행 방법:
+  1. python -m http.server 3000
+  2. npx serve .
+-->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CORS Test</title>
+</head>
+<body>
+  <h1>CORS 테스트</h1>
+  <button id="fetch">API 호출</button>
+  <pre id="response"></pre>
+
+  <script>
+    const fetchBtn = document.getElementById('fetch');
+    const responseEl = document.getElementById('response');
+
+    fetchBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('http://localhost:8000/test-cors', {
+          method: 'GET',
+          credentials: 'include', // include: 쿠키 전송 필요, omit: 쿠키 전송 불필요
+        });
+
+        if (!res.ok) {
+          responseEl.textContent = `HTTP 에러: ${res.status}`;
+          return;
+        }
+
+        const text = await res.text(); // JSON이 아니라 단순 텍스트인 경우
+        responseEl.textContent = `응답 내용: ${text || 'No Content'}`;
+      } catch (e) {
+        responseEl.textContent = `API 호출 에러: ${e}`;
+      }
+    });
+  </script>
+</body>
+</html>

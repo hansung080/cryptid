@@ -1,4 +1,4 @@
-from cryptid.error import EntityNotFoundError
+from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer
 
 _explorers = [
@@ -15,8 +15,18 @@ _explorers = [
 ]
 
 
+def find(name: str) -> Explorer | None:
+    return next((c for c in _explorers if c.name == name), None)
+
+
+def find_index(name: str) -> int | None:
+    return next((i for i, c in enumerate(_explorers) if c.name == name), None)
+
+
 def create(explorer: Explorer) -> Explorer:
-    # TODO: To implement the body.
+    if find(explorer.name) is not None:
+        raise EntityAlreadyExistsError(entity="explorer", key=explorer.name)
+    _explorers.append(explorer)
     return explorer
 
 
@@ -25,25 +35,23 @@ def get_all() -> list[Explorer]:
 
 
 def get_one(name: str) -> Explorer:
-    for _explorer in _explorers:
-        if _explorer.name == name:
-            return _explorer
-    raise EntityNotFoundError(entity="explorer", key=name)
+    if (explorer := find(name)) is None:
+        raise EntityNotFoundError(entity="explorer", key=name)
+    return explorer
 
 
 def replace(name: str, explorer: Explorer) -> Explorer:
-    # TODO: To implement the body.
+    if (index := find_index(name)) is None:
+        raise EntityNotFoundError(entity="explorer", key=name)
+    _explorers[index] = explorer
     return explorer
 
 
 def modify(name: str, explorer: Explorer) -> Explorer:
-    # TODO: To implement the body.
-    return explorer
+    return replace(name, explorer)
 
 
 def delete(name: str) -> None:
-    # TODO: To implement the body.
-    for _explorer in _explorers:
-        if _explorer.name == name:
-            return
-    raise EntityNotFoundError(entity="explorer", key=name)
+    if (explorer := find(name)) is None:
+        raise EntityNotFoundError(entity="explorer", key=name)
+    _explorers.remove(explorer)

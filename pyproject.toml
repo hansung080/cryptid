@@ -6,7 +6,7 @@ authors = [
     { name = "Han-Seong Kwon", email = "hansung080@hanmail.net" },
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0" # add schemathesis: pyrate-limiter requires Python >=3.8,<4.0
 dependencies = [
     "fastapi[all] (>=0.116.1,<0.117.0)",
     "uvicorn[standard] (>=0.35.0,<0.36.0)",
@@ -29,6 +29,8 @@ server = "src.cryptid.main:run"
 pytest = "^8.4.2"
 pytest-env = "^1.1.5"
 httpx = "^0.28.1"
+hypothesis = "^6.140.2"
+schemathesis = "^4.1.4"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

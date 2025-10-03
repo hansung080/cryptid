@@ -1,58 +1,54 @@
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, SignInUser, PrivateUser
 
-_users = [
-    PublicUser(
+_users = {
+    "Mike": PublicUser(
         name="Mike",
         roles=["user", "admin"],
     ),
-    PublicUser(
+    "John": PublicUser(
         name="John",
         roles=["user"],
     ),
-]
+}
 
 
 def find(name: str) -> PublicUser | None:
-    for _user in _users:
-        if _user.name == name:
-            return _user
-    return None
-
-
-def check_already_exists(name: str) -> None:
-    if find(name):
-        raise EntityAlreadyExistsError(entity="user", key=name)
-
-
-def check_not_found(name: str) -> None:
-    if not find(name):
-        raise EntityNotFoundError(entity="user", key=name)
+    return _users.get(name)
 
 
 def create(user: SignInUser | PrivateUser) -> PublicUser:
-    check_already_exists(user.name)
-    return PublicUser(name=user.name, roles=user.roles)
+    if find(user.name) is not None:
+        raise EntityAlreadyExistsError(entity="user", key=user.name)
+    public_user = PublicUser(name=user.name, roles=user.roles)
+    _users[user.name] = public_user
+    return public_user
 
 
 def get_all() -> list[PublicUser]:
-    return _users
+    return list(_users.values())
 
 
 def get_one(name: str) -> PublicUser:
-    check_not_found(name)
-    return find(name)
+    if (user := find(name)) is None:
+        raise EntityNotFoundError(entity="user", key=name)
+    return user
 
 
 def replace(name: str, user: PublicUser) -> PublicUser:
-    check_not_found(name)
+    if find(name) is None:
+        raise EntityNotFoundError(entity="user", key=name)
+    if name != user.name:
+        del _users[name]
+    _users[user.name] = user
     return user
 
 
 def modify(name: str, user: PublicUser) -> PublicUser:
-    check_not_found(name)
-    return user
+    return replace(name, user)
 
 
 def delete(name: str) -> None:
-    check_not_found(name)
+    if find(name) is None:
+        raise EntityNotFoundError(entity="user", key=name)
+    del _users[name]

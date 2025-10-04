@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from starlette import status
 
 from cryptid.main import app
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 
 from tests.common import count
 from tests.full.common import assert_response
@@ -71,12 +71,14 @@ def test_replace_not_found(yeti: Creature) -> None:
 
 def test_modify(bigfoot: Creature) -> None:
     bigfoot.description = f"I'm Bigfoot {key_num}"
-    resp = client.patch(f"/creature/{bigfoot.name}", json=bigfoot.model_dump())
+    creature = PartialCreature(description=bigfoot.description).model_dump(exclude_unset=True)
+    resp = client.patch(f"/creature/{bigfoot.name}", json=creature)
     assert_response(resp, status_code=status.HTTP_200_OK, json=bigfoot)
 
 
 def test_modify_not_found(yeti: Creature) -> None:
-    resp = client.patch(f"/creature/{yeti.name}", json=yeti.model_dump())
+    creature = PartialCreature().model_dump(exclude_unset=True)
+    resp = client.patch(f"/creature/{yeti.name}", json=creature)
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)
 
 

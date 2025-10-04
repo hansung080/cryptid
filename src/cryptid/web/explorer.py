@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import explorer as service
@@ -49,7 +49,7 @@ def replace(name: str, explorer: Explorer) -> Explorer:
 
 @router.patch("/{name}")
 @router.patch("/{name}/")
-def modify(name: str, explorer: Explorer) -> Explorer:
+def modify(name: str, explorer: PartialExplorer) -> Explorer:
     try:
         return service.modify(name, explorer)
     except EntityNotFoundError as e:

@@ -1,5 +1,5 @@
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, SignInUser, PrivateUser
+from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
 
 _users = {
     "Mike": PublicUser(
@@ -45,7 +45,13 @@ def replace(name: str, user: PublicUser) -> PublicUser:
 
 
 def modify(name: str, user: PublicUser) -> PublicUser:
-    return replace(name, user)
+    updated = update_model(get_one(name), user)
+    return replace(name, updated)
+
+
+def update_model(user: PublicUser, update: PartialUser) -> PublicUser:
+    update_dict = update.model_dump(exclude_unset=True)
+    return user.model_copy(update=update_dict)
 
 
 def delete(name: str) -> None:

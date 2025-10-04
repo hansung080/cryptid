@@ -2,7 +2,7 @@ from typing import Any, TypeAlias
 
 from cryptid.data.init import cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS creature (
@@ -88,8 +88,14 @@ def replace(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def modify(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
-    return replace(name, creature, fetch=fetch)
+def modify(name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature:
+    updated = update_model(get_one(name), creature)
+    return replace(name, updated, fetch=fetch)
+
+
+def update_model(creature: Creature, update: PartialCreature) -> Creature:
+    update_dict = update.model_dump(exclude_unset=True)
+    return creature.model_copy(update=update_dict)
 
 
 def delete(name: str) -> None:

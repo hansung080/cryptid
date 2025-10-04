@@ -1,7 +1,7 @@
 import pytest
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 from cryptid.service import creature as service
 
 from tests.common import count
@@ -68,13 +68,13 @@ def test_replace_not_found(yeti: Creature) -> None:
 
 def test_modify(bigfoot: Creature) -> None:
     bigfoot.description = f"I'm Bigfoot {key_num}"
-    resp = service.modify(bigfoot.name, bigfoot)
+    resp = service.modify(bigfoot.name, PartialCreature(description=bigfoot.description))
     assert resp == bigfoot
 
 
 def test_modify_not_found(yeti: Creature) -> None:
     with pytest.raises(EntityNotFoundError):
-        _ = service.modify(yeti.name, yeti)
+        _ = service.modify(yeti.name, PartialCreature())
 
 
 def test_delete(bigfoot: Creature) -> None:

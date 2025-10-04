@@ -1,6 +1,6 @@
 import os
 
-from cryptid.model.user import PublicUser, SignInUser, PrivateUser
+from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
 from cryptid.service.auth import make_hash
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
@@ -30,7 +30,7 @@ def replace(name: str, user: PublicUser) -> PublicUser:
     return data.replace(name, user)
 
 
-def modify(name: str, user: PublicUser) -> PublicUser:
+def modify(name: str, user: PartialUser) -> PublicUser:
     return data.modify(name, user)
 
 

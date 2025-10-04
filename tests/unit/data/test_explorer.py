@@ -2,7 +2,7 @@ import pytest
 
 from cryptid.data import explorer as data
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 from tests.common import count
 
@@ -64,13 +64,13 @@ def test_replace_not_found(claude: Explorer) -> None:
 
 def test_modify(noah: Explorer) -> None:
     noah.description = f"I'm Noah Weiser {key_num}"
-    resp = data.modify(noah.name, noah)
+    resp = data.modify(noah.name, PartialExplorer(description=noah.description))
     assert resp == noah
 
 
 def test_modify_not_found(claude: Explorer) -> None:
     with pytest.raises(EntityNotFoundError):
-        _ = data.modify(claude.name, claude)
+        _ = data.modify(claude.name, PartialExplorer())
 
 
 def test_delete(noah: Explorer) -> None:

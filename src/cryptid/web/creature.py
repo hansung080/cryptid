@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import creature as service
@@ -49,7 +49,7 @@ def replace(name: str, creature: Creature) -> Creature:
 
 @router.patch("/{name}")
 @router.patch("/{name}/")
-def modify(name: str, creature: Creature) -> Creature:
+def modify(name: str, creature: PartialCreature) -> Creature:
     try:
         return service.modify(name, creature)
     except EntityNotFoundError as e:

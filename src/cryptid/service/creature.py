@@ -1,6 +1,6 @@
 import os
 
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import creature as data
@@ -24,7 +24,7 @@ def replace(name: str, creature: Creature) -> Creature:
     return data.replace(name, creature)
 
 
-def modify(name: str, creature: Creature) -> Creature:
+def modify(name: str, creature: PartialCreature) -> Creature:
     return data.modify(name, creature)
 
 

@@ -2,7 +2,7 @@ from typing import Any, TypeAlias
 
 from cryptid.data.init import cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, PrivateUser
+from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS user (
@@ -97,8 +97,14 @@ def replace(name: str, user: PublicUser, *, deleted_user: bool = False, fetch: b
         raise EntityNotFoundError(entity=table, key=name)
 
 
-def modify(name: str, user: PublicUser, *, deleted_user: bool = False, fetch: bool = True) -> PublicUser:
-    return replace(name, user, deleted_user=deleted_user, fetch=fetch)
+def modify(name: str, user: PartialUser, *, deleted_user: bool = False, fetch: bool = True) -> PublicUser:
+    updated = update_model(get_one(name), user)
+    return replace(name, updated, deleted_user=deleted_user, fetch=fetch)
+
+
+def update_model(user: PublicUser, update: PartialUser) -> PublicUser:
+    update_dict = update.model_dump(exclude_unset=True)
+    return user.model_copy(update=update_dict)
 
 
 def delete(name: str, *, deleted_user: bool = False) -> None:

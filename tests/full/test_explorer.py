@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from starlette import status
 
 from cryptid.main import app
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 from tests.common import count
 from tests.full.common import assert_response
@@ -67,12 +67,14 @@ def test_replace_not_found(claude: Explorer) -> None:
 
 def test_modify(noah: Explorer) -> None:
     noah.description = f"I'm Noah Weiser {key_num}"
-    resp = client.patch(f"/explorer/{noah.name}", json=noah.model_dump())
+    explorer = PartialExplorer(description=noah.description).model_dump(exclude_unset=True)
+    resp = client.patch(f"/explorer/{noah.name}", json=explorer)
     assert_response(resp, status_code=status.HTTP_200_OK, json=noah)
 
 
 def test_modify_not_found(claude: Explorer) -> None:
-    resp = client.patch(f"/explorer/{claude.name}", json=claude.model_dump())
+    explorer = PartialExplorer().model_dump(exclude_unset=True)
+    resp = client.patch(f"/explorer/{claude.name}", json=explorer)
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)
 
 

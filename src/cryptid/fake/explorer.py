@@ -1,5 +1,5 @@
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 _explorers = [
     Explorer(
@@ -47,8 +47,14 @@ def replace(name: str, explorer: Explorer) -> Explorer:
     return explorer
 
 
-def modify(name: str, explorer: Explorer) -> Explorer:
-    return replace(name, explorer)
+def modify(name: str, explorer: PartialExplorer) -> Explorer:
+    updated = update_model(get_one(name), explorer)
+    return replace(name, updated)
+
+
+def update_model(explorer: Explorer, update: PartialExplorer) -> Explorer:
+    update_dict = update.model_dump(exclude_unset=True)
+    return explorer.model_copy(update=update_dict)
 
 
 def delete(name: str) -> None:

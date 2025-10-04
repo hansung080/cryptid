@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 from cryptid.web import explorer as web
 
 from tests.common import count
@@ -68,13 +68,13 @@ def test_replace_not_found(claude: Explorer) -> None:
 
 def test_modify(noah: Explorer) -> None:
     noah.description = f"I'm Noah Weiser {key_num}"
-    resp = web.modify(noah.name, noah)
+    resp = web.modify(noah.name, PartialExplorer(description=noah.description))
     assert resp == noah
 
 
 def test_modify_not_found(claude: Explorer) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.modify(claude.name, claude)
+        _ = web.modify(claude.name, PartialExplorer())
         assert_not_found_error(e)
 
 

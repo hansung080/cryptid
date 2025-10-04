@@ -1,6 +1,6 @@
 import os
 
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import explorer as data
@@ -24,7 +24,7 @@ def replace(name: str, explorer: Explorer) -> Explorer:
     return data.replace(name, explorer)
 
 
-def modify(name: str, explorer: Explorer) -> Explorer:
+def modify(name: str, explorer: PartialExplorer) -> Explorer:
     return data.modify(name, explorer)
 
 

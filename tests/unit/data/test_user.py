@@ -2,7 +2,7 @@ import pytest
 
 from cryptid.data import user as data
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, PrivateUser
+from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 from cryptid.service.auth import make_hash
 
 from tests.common import count
@@ -78,13 +78,13 @@ def test_replace_not_found(mike: PublicUser) -> None:
 
 def test_modify(john: PublicUser) -> None:
     john.roles = ["user", "admin"]
-    resp = data.modify(john.name, john)
+    resp = data.modify(john.name, PartialUser(roles=john.roles))
     assert resp == john
 
 
 def test_modify_not_found(mike: PublicUser) -> None:
     with pytest.raises(EntityNotFoundError):
-        _ = data.modify(mike.name, mike)
+        _ = data.modify(mike.name, PartialUser())
 
 
 def test_delete(john: PublicUser) -> None:

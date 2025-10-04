@@ -12,3 +12,8 @@ class SignInUser(PublicUser):
 
 class PrivateUser(PublicUser):
     hash: str
+
+
+class PartialUser(BaseModel):
+    name: str | None = None
+    roles: list[str] | None = None

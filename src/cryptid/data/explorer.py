@@ -2,7 +2,7 @@ from typing import Any, TypeAlias
 
 from cryptid.data.init import cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.explorer import Explorer
+from cryptid.model.explorer import Explorer, PartialExplorer
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS explorer (
@@ -82,8 +82,14 @@ def replace(name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def modify(name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
-    return replace(name, explorer, fetch=fetch)
+def modify(name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer:
+    updated = update_model(get_one(name), explorer)
+    return replace(name, updated, fetch=fetch)
+
+
+def update_model(explorer: Explorer, update: PartialExplorer) -> Explorer:
+    update_dict = update.model_dump(exclude_unset=True)
+    return explorer.model_copy(update=update_dict)
 
 
 def delete(name: str) -> None:

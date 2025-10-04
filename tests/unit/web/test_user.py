@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
-from cryptid.model.user import PublicUser, SignInUser
+from cryptid.model.user import PublicUser, SignInUser, PartialUser
 from cryptid.web import user as web
 
 from tests.common import count
@@ -81,13 +81,13 @@ def test_replace_not_found(mike: PublicUser) -> None:
 
 def test_modify(john: PublicUser) -> None:
     john.roles = ["user", "admin"]
-    resp = web.modify(john.name, john)
+    resp = web.modify(john.name, PartialUser(roles=john.roles))
     assert resp == john
 
 
 def test_modify_not_found(mike: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.modify(mike.name, mike)
+        _ = web.modify(mike.name, PartialUser())
         assert_not_found_error(e)
 
 

@@ -1,5 +1,5 @@
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 
 _creatures = [
     Creature(
@@ -51,8 +51,14 @@ def replace(name: str, creature: Creature) -> Creature:
     return creature
 
 
-def modify(name: str, creature: Creature) -> Creature:
-    return replace(name, creature)
+def modify(name: str, creature: PartialCreature) -> Creature:
+    updated = update_model(get_one(name), creature)
+    return replace(name, updated)
+
+
+def update_model(creature: Creature, update: PartialCreature) -> Creature:
+    update_dict = update.model_dump(exclude_unset=True)
+    return creature.model_copy(update=update_dict)
 
 
 def delete(name: str) -> None:

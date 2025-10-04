@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from starlette import status
 
 from cryptid.main import app
-from cryptid.model.user import PublicUser, SignInUser
+from cryptid.model.user import PublicUser, SignInUser, PartialUser
 
 from tests.common import count
 from tests.full.common import assert_response
@@ -80,12 +80,14 @@ def test_replace_not_found(mike: PublicUser) -> None:
 
 def test_modify(john: PublicUser) -> None:
     john.roles = ["user", "admin"]
-    resp = client.patch(f"/user/{john.name}", json=john.model_dump())
+    user = PartialUser(roles=john.roles).model_dump(exclude_unset=True)
+    resp = client.patch(f"/user/{john.name}", json=user)
     assert_response(resp, status_code=status.HTTP_200_OK, json=john)
 
 
 def test_modify_not_found(mike: PublicUser) -> None:
-    resp = client.patch(f"/user/{mike.name}", json=mike.model_dump())
+    user = PartialUser().model_dump(exclude_unset=True)
+    resp = client.patch(f"/user/{mike.name}", json=user)
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)
 
 

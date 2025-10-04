@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
-from cryptid.model.creature import Creature
+from cryptid.model.creature import Creature, PartialCreature
 from cryptid.web import creature as web
 
 from tests.common import count
@@ -72,13 +72,13 @@ def test_replace_not_found(yeti: Creature) -> None:
 
 def test_modify(bigfoot: Creature) -> None:
     bigfoot.description = f"I'm Bigfoot {key_num}"
-    resp = web.modify(bigfoot.name, bigfoot)
+    resp = web.modify(bigfoot.name, PartialCreature(description=bigfoot.description))
     assert resp == bigfoot
 
 
 def test_modify_not_found(yeti: Creature) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.modify(yeti.name, yeti)
+        _ = web.modify(yeti.name, PartialCreature())
         assert_not_found_error(e)
 
 

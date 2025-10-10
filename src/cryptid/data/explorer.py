@@ -7,8 +7,8 @@ from cryptid.model.explorer import Explorer, PartialExplorer
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS explorer (
     name TEXT PRIMARY KEY,
-    country TEXT,
-    description TEXT
+    country TEXT NOT NULL,
+    description TEXT NOT NULL
 )
 """)
 

@@ -7,10 +7,10 @@ from cryptid.model.creature import Creature, PartialCreature
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS creature (
     name TEXT PRIMARY KEY,
-    country TEXT,
-    area TEXT,
-    description TEXT,
-    aka TEXT
+    country TEXT NOT NULL,
+    area TEXT NOT NULL,
+    description TEXT NOT NULL,
+    aka TEXT NOT NULL
 )
 """)
 

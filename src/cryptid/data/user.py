@@ -1,3 +1,4 @@
+import json
 from typing import Any, TypeAlias
 
 from cryptid.data.init import cursor, IntegrityError
@@ -7,8 +8,8 @@ from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS user (
     name TEXT PRIMARY KEY,
-    hash TEXT,
-    roles TEXT
+    hash TEXT NOT NULL,
+    roles TEXT NOT NULL CHECK(json_valid(roles))
 )
 """)
 
@@ -17,25 +18,25 @@ UserRow: TypeAlias = tuple[str, str, str]
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS xuser (
     name TEXT PRIMARY KEY,
-    hash TEXT,
-    roles TEXT
+    hash TEXT NOT NULL,
+    roles TEXT NOT NULL CHECK(json_valid(roles))
 )
 """)
 
 
 def model_to_dict(user: PublicUser | PrivateUser) -> dict[str, Any]:
     user_dict = user.model_dump(exclude={"roles"})
-    user_dict["roles"] = ",".join(user.roles)
+    user_dict["roles"] = json.dumps(user.roles)
     return user_dict
 
 
 def row_to_model(row: UserRow, *, public: bool = True) -> PublicUser | PrivateUser:
-    name, hash, roles = row
-    roles = roles.split(",")
+    name, hash_, roles = row
+    roles = json.loads(roles)
     if public:
         return PublicUser(name=name, roles=roles)
     else:
-        return PrivateUser(name=name, roles=roles, hash=hash)
+        return PrivateUser(name=name, roles=roles, hash=hash_)
 
 
 def get_table_name(deleted_user: bool) -> str:

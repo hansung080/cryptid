@@ -80,9 +80,9 @@ def parse_jwt(token: str) -> dict[str, Any]:
 
 def get_user_from_jwt(token: str) -> PublicUser:
     claims = parse_jwt(token)
-    if not (username := claims.get("sub")):
+    if (username := claims.get("sub")) is None:
         raise JWTValidationError(msg="claim 'sub' required")
-    if not (roles := claims.get("roles")):
+    if (roles := claims.get("roles")) is None:
         raise JWTValidationError(msg="claim 'roles' required")
     return PublicUser(name=username, roles=roles)
 

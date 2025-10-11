@@ -10,7 +10,7 @@ from cryptid.model.token import Token, TokenResponse
 from cryptid.service import auth as service
 
 router = APIRouter(prefix="/auth")
-oauth2_dep = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 @router.post("/token", response_model=TokenResponse)
@@ -29,7 +29,7 @@ async def create_token(form: OAuth2PasswordRequestForm = Depends()) -> Token:
 
 @router.get("/token")
 @router.get("/token/")
-def verify_token(token: str = Depends(oauth2_dep)) -> dict[str, Any]:
+def verify_token(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
     try:
         claims = service.parse_jwt(token)
     except AuthenticationError as e:

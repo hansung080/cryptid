@@ -11,7 +11,7 @@ if not os.getenv("CRYPTID_UNIT_TEST"):
 else:
     from cryptid.fake import user as service
 
-router = APIRouter(prefix="/user")
+router = APIRouter(prefix="/users")
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

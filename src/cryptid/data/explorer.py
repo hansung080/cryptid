@@ -1,10 +1,12 @@
 from typing import Any, TypeAlias
 
-from cryptid.data.init import cursor, IntegrityError
+from cryptid.data.init import get_conn, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer, PartialExplorer
 
-cursor.execute("""
+_cursor = get_conn()
+
+_cursor.execute("""
 CREATE TABLE IF NOT EXISTS explorer (
     name TEXT PRIMARY KEY,
     country TEXT NOT NULL,
@@ -28,7 +30,7 @@ def row_to_model(row: ExplorerRow) -> Explorer:
     )
 
 
-def create(explorer: Explorer, *, fetch: bool = True) -> Explorer:
+def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = True) -> Explorer:
     sql = """
     INSERT INTO explorer (name, country, description)
     VALUES (:name, :country, :description)
@@ -40,10 +42,10 @@ def create(explorer: Explorer, *, fetch: bool = True) -> Explorer:
             raise EntityAlreadyExistsError(entity="explorer", key=explorer.name)
         else:
             raise e
-    return get_one(explorer.name) if fetch else explorer
+    return get_one(cursor, explorer.name) if fetch else explorer
 
 
-def get_all() -> list[Explorer]:
+def get_all(cursor: Cursor) -> list[Explorer]:
     sql = """
     SELECT *
     FROM explorer
@@ -52,7 +54,7 @@ def get_all() -> list[Explorer]:
     return [row_to_model(row) for row in cursor.fetchall()]
 
 
-def get_one(name: str) -> Explorer:
+def get_one(cursor: Cursor, name: str) -> Explorer:
     sql = """
     SELECT *
     FROM explorer
@@ -65,7 +67,7 @@ def get_one(name: str) -> Explorer:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def replace(name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
+def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
     sql = """
     UPDATE explorer
     SET name = :name,
@@ -77,14 +79,14 @@ def replace(name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
     params["name_old"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(explorer.name) if fetch else explorer
+        return get_one(cursor, explorer.name) if fetch else explorer
     else:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def modify(name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer:
-    updated = update_model(get_one(name), explorer)
-    return replace(name, updated, fetch=fetch)
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer:
+    updated = update_model(get_one(cursor, name), explorer)
+    return replace(cursor, name, updated, fetch=fetch)
 
 
 def update_model(explorer: Explorer, update: PartialExplorer) -> Explorer:
@@ -92,7 +94,7 @@ def update_model(explorer: Explorer, update: PartialExplorer) -> Explorer:
     return explorer.model_copy(update=update_dict)
 
 
-def delete(name: str) -> None:
+def delete(cursor: Cursor, name: str) -> None:
     sql = """
     DELETE FROM explorer
     WHERE name = :name

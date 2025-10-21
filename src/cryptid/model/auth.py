@@ -26,3 +26,8 @@ class TokenResponse(BaseModel):
         if self.refresh is None:
             data.pop("refresh_token", None)
         return data
+
+
+class AuthUser(BaseModel):
+    name: str
+    roles: list[str]

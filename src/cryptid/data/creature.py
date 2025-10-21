@@ -1,10 +1,12 @@
 from typing import Any, TypeAlias
 
-from cryptid.data.init import cursor, IntegrityError
+from cryptid.data.init import get_conn, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 
-cursor.execute("""
+_cursor = get_conn()
+
+_cursor.execute("""
 CREATE TABLE IF NOT EXISTS creature (
     name TEXT PRIMARY KEY,
     country TEXT NOT NULL,
@@ -32,7 +34,7 @@ def row_to_model(row: CreatureRow) -> Creature:
     )
 
 
-def create(creature: Creature, *, fetch: bool = True) -> Creature:
+def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creature:
     sql = """
     INSERT INTO creature (name, country, area, description, aka)
     VALUES (:name, :country, :area, :description, :aka)
@@ -44,10 +46,10 @@ def create(creature: Creature, *, fetch: bool = True) -> Creature:
             raise EntityAlreadyExistsError(entity="creature", key=creature.name)
         else:
             raise e
-    return get_one(creature.name) if fetch else creature
+    return get_one(cursor, creature.name) if fetch else creature
 
 
-def get_all() -> list[Creature]:
+def get_all(cursor: Cursor) -> list[Creature]:
     sql = """
     SELECT *
     FROM creature
@@ -56,7 +58,7 @@ def get_all() -> list[Creature]:
     return [row_to_model(row) for row in cursor.fetchall()]
 
 
-def get_one(name: str) -> Creature:
+def get_one(cursor: Cursor, name: str) -> Creature:
     sql = """
     SELECT *
     FROM creature
@@ -69,7 +71,7 @@ def get_one(name: str) -> Creature:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def replace(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
+def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True) -> Creature:
     sql = """
     UPDATE creature
     SET name = :name,
@@ -83,14 +85,14 @@ def replace(name: str, creature: Creature, *, fetch: bool = True) -> Creature:
     params["name_old"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(creature.name) if fetch else creature
+        return get_one(cursor, creature.name) if fetch else creature
     else:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def modify(name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature:
-    updated = update_model(get_one(name), creature)
-    return replace(name, updated, fetch=fetch)
+def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature:
+    updated = update_model(get_one(cursor, name), creature)
+    return replace(cursor, name, updated, fetch=fetch)
 
 
 def update_model(creature: Creature, update: PartialCreature) -> Creature:
@@ -98,7 +100,7 @@ def update_model(creature: Creature, update: PartialCreature) -> Creature:
     return creature.model_copy(update=update_dict)
 
 
-def delete(name: str) -> None:
+def delete(cursor: Cursor, name: str) -> None:
     sql = """
     DELETE FROM creature
     WHERE name = :name

@@ -2,27 +2,62 @@ import os
 from pathlib import Path
 from sqlite3 import connect, Connection, Cursor, IntegrityError
 
-__all__ = ["conn", "cursor", "IntegrityError"]
+__all__ = ["database", "get_conn", "Connection", "Cursor", "IntegrityError"]
 
-conn: Connection | None = None
-cursor: Cursor | None = None
+database: str | None = None
+_conn: Connection | None = None
 
 
-def init_db(name: str | None = None, reset: bool = False):
-    global conn, cursor
-    if conn:
+def init_db(path: str | None = None, reset: bool = False):
+    global database, _conn
+    if _conn:
         if not reset:
             return
-        conn = None
-    if not name:
+        _conn = None
+    if not path:
         top_dir = Path(__file__).resolve().parents[3]
         db_dir = top_dir / "db"
         db_dir.mkdir(exist_ok=True)
         db_name = "cryptid.db"
         db_path = str(db_dir / db_name)
-        name = os.getenv("CRYPTID_SQLITE_DB", db_path)
-    conn = connect(name, check_same_thread=False, isolation_level=None)
-    cursor = conn.cursor()
+        path = os.getenv("CRYPTID_SQLITE_DB", db_path)
+
+    # isolation_level=None, "DEFERRED" (default), "IMMEDIATE", "EXCLUSIVE"
+    # - None: autocommit mode, in which every write SQL is committed immediately.
+    # - DEFERRED: auto-transaction mode, in which a transaction acquires a write lock on first write.
+    # - IMMEDIATE: auto-transaction mode, in which a transaction acquires a write lock on begin.
+    # - EXCLUSIVE: auto-transaction mode, in which a transaction acquires a read/write lock on begin.
+    # * Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL
+    #   not in a transaction, and needs explicit COMMIT/ROLLBACK or the `with conn:` syntax to commit or rollback it.
+    # * Explicit BEGIN <isolation_level>/COMMIT/ROLLBACK creates the <isolation_level> transaction
+    #   regardless of the `isolation_level` argument.
+    # * The `with conn:` syntax begins the `isolation_level` transaction if `isolation_level` is not None and
+    #   not in a transaction, and commits or rollbacks it if `isolation_level` is not None.
+    database = path
+    _conn = connect(database, isolation_level="DEFERRED", check_same_thread=False)
 
 
 init_db()
+
+
+def get_conn(new: bool = False) -> Connection:
+    if new:
+        return connect(database, isolation_level="DEFERRED", check_same_thread=False)
+    else:
+        return _conn
+
+
+# This is the rough implementation of sqlite3.Connection.ContextManager.
+# class Connection:
+#     def __enter__(self):
+#         if self.isolation_level is not None and self.in_transaction == False:
+#             self.execute("BEGIN")
+#         return self
+#
+#     def __exit__(self, exc_type, exc_value, traceback):
+#         if self.isolation_level is None:
+#             return
+#         if exc_type is None:
+#             self.commit()
+#         else:
+#             self.rollback()

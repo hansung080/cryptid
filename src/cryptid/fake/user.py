@@ -1,60 +1,32 @@
-from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
+from cryptid.fake.data import user as data
 from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
-
-_users = {
-    "Mike": PublicUser(
-        name="Mike",
-        roles=["user", "admin"],
-    ),
-    "John": PublicUser(
-        name="John",
-        roles=["user"],
-    ),
-}
+from cryptid.service.auth import make_hash
 
 
-def find(name: str) -> PublicUser | None:
-    return _users.get(name)
-
-
-def create(user: SignInUser | PrivateUser) -> PublicUser:
-    if find(user.name) is not None:
-        raise EntityAlreadyExistsError(entity="user", key=user.name)
-    public_user = PublicUser(name=user.name, roles=user.roles)
-    _users[user.name] = public_user
-    return public_user
+def create(user: SignInUser) -> PublicUser:
+    private_user = PrivateUser(
+        name=user.name,
+        roles=user.roles,
+        hash=make_hash(user.password),
+    )
+    return data.create(None, private_user)
 
 
 def get_all() -> list[PublicUser]:
-    return list(_users.values())
+    return data.get_all(None)
 
 
 def get_one(name: str) -> PublicUser:
-    if (user := find(name)) is None:
-        raise EntityNotFoundError(entity="user", key=name)
-    return user
+    return data.get_one(None, name)
 
 
 def replace(name: str, user: PublicUser) -> PublicUser:
-    if find(name) is None:
-        raise EntityNotFoundError(entity="user", key=name)
-    if name != user.name:
-        del _users[name]
-    _users[user.name] = user
-    return user
+    return data.replace(None, name, user)
 
 
-def modify(name: str, user: PublicUser) -> PublicUser:
-    updated = update_model(get_one(name), user)
-    return replace(name, updated)
-
-
-def update_model(user: PublicUser, update: PartialUser) -> PublicUser:
-    update_dict = update.model_dump(exclude_unset=True)
-    return user.model_copy(update=update_dict)
+def modify(name: str, user: PartialUser) -> PublicUser:
+    return data.modify(None, name, user)
 
 
 def delete(name: str) -> None:
-    if find(name) is None:
-        raise EntityNotFoundError(entity="user", key=name)
-    del _users[name]
+    data.delete(None, name)

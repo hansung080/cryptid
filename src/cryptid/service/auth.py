@@ -6,14 +6,18 @@ import bcrypt
 from dotenv import load_dotenv
 from jose import jwt, JWTError
 
+from cryptid.data.init import get_conn
 from cryptid.error import EntityNotFoundError, AuthenticationError, JWTValidationError
-from cryptid.model.token import Token
+from cryptid.model.auth import Token, AuthUser
 from cryptid.model.user import PublicUser, PrivateUser
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data
 else:
-    from cryptid.fake import user as data
+    from cryptid.fake.data import user as data
+
+_conn = get_conn()
+_cursor = _conn.cursor()
 
 load_dotenv()
 
@@ -31,7 +35,7 @@ def create_token(username: str, password: str) -> Token:
     return token
 
 
-def authenticate_user(name: str, password: str) -> PublicUser | PrivateUser:
+def authenticate_user(name: str, password: str) -> PrivateUser:
     user = find_user(name, public=False)
     if not verify_password(password, user.hash):
         raise AuthenticationError(msg=f"wrong password '{password}' for user '{name}'")
@@ -40,7 +44,7 @@ def authenticate_user(name: str, password: str) -> PublicUser | PrivateUser:
 
 def find_user(name: str, public: bool = True) -> PublicUser | PrivateUser:
     try:
-        return data.get_one(name, public=public)
+        return data.get_one(_cursor, name, public=public)
     except EntityNotFoundError:
         raise AuthenticationError(msg=f"user '{name}' does not exist")
 
@@ -78,13 +82,13 @@ def parse_jwt(token: str) -> dict[str, Any]:
         raise JWTValidationError() from e
 
 
-def get_user_from_jwt(token: str) -> PublicUser:
+def get_user_from_jwt(token: str) -> AuthUser:
     claims = parse_jwt(token)
     if (username := claims.get("sub")) is None:
         raise JWTValidationError(msg="claim 'sub' required")
     if (roles := claims.get("roles")) is None:
         raise JWTValidationError(msg="claim 'roles' required")
-    return PublicUser(name=username, roles=roles)
+    return AuthUser(name=username, roles=roles)
 
 
 def find_user_by_jwt(token: str) -> PublicUser:

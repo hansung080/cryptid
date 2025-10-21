@@ -19,7 +19,7 @@ def mike() -> PublicUser:
 
 @pytest.fixture
 def mike_password() -> str:
-    return "1234"
+    return "mike1234"
 
 
 @pytest.fixture

@@ -6,15 +6,43 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from starlette import status
 
 from cryptid.error import AuthenticationError, JWTValidationError
-from cryptid.model.token import Token, TokenResponse
+from cryptid.model.auth import Token, TokenResponse, AuthUser
 from cryptid.service import auth as service
 
 router = APIRouter(prefix="/auth")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
-@router.post("/token", response_model=TokenResponse)
-@router.post("/token/", response_model=TokenResponse)
+def get_auth_user(token: str = Depends(oauth2_scheme)) -> AuthUser:
+    try:
+        return service.get_user_from_jwt(token)
+    except AuthenticationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def _require_role(role: str, user: AuthUser) -> AuthUser:
+    if role not in user.roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"role '{role}' required",
+        )
+    return user
+
+
+def user_role(user: AuthUser = Depends(get_auth_user)) -> AuthUser:
+    return _require_role("user", user)
+
+
+def admin_role(user: AuthUser = Depends(get_auth_user)) -> AuthUser:
+    return _require_role("admin", user)
+
+
+@router.post("/token", status_code=status.HTTP_201_CREATED, response_model=TokenResponse)
+@router.post("/token/", status_code=status.HTTP_201_CREATED, response_model=TokenResponse)
 async def create_token(form: OAuth2PasswordRequestForm = Depends()) -> Token:
     try:
         return service.create_token(form.username, form.password)

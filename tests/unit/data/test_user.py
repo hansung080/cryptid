@@ -1,6 +1,6 @@
 import pytest
 
-from cryptid.data import user as data
+from cryptid.data import user as data, xuser
 from cryptid.data.init import get_cursor, transaction_with, Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, PrivateUser, PartialUser
@@ -110,7 +110,7 @@ def test_delete(john: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
         assert data.delete(cursor, john.name) is None
-        resp = data.get_one(cursor, john.name, deleted_user=True)
+        resp = xuser.get_one(cursor, john.name)
         john.roles = ["user", "admin"]
         assert resp == john
     inner()

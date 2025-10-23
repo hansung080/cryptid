@@ -1,7 +1,6 @@
 import json
 from typing import Any, TypeAlias
 
-from cryptid.data import xuser
 from cryptid.data.init import transaction_with, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, PrivateUser, PartialUser
@@ -12,7 +11,7 @@ UserRow: TypeAlias = tuple[str, str, str]
 @transaction_with(new_conn=False)
 def _create_table(cursor: Cursor) -> None:
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS user (
+    CREATE TABLE IF NOT EXISTS xuser (
         name TEXT PRIMARY KEY,
         hash TEXT NOT NULL,
         roles TEXT NOT NULL CHECK(json_valid(roles))
@@ -40,14 +39,14 @@ def row_to_model(row: UserRow, *, public: bool = True) -> PublicUser | PrivateUs
 
 def create(cursor: Cursor, user: PrivateUser, *, fetch: bool = True) -> PublicUser:
     sql = """
-    INSERT INTO user (name, hash, roles)
+    INSERT INTO xuser (name, hash, roles)
     VALUES (:name, :hash, :roles)
     """
     try:
         cursor.execute(sql, model_to_dict(user))
     except IntegrityError as e:
         if "UNIQUE constraint failed" in str(e):
-            raise EntityAlreadyExistsError(entity="user", key=user.name)
+            raise EntityAlreadyExistsError(entity="xuser", key=user.name)
         raise e
     return get_one(cursor, user.name) if fetch else PublicUser(name=user.name)
 
@@ -55,7 +54,7 @@ def create(cursor: Cursor, user: PrivateUser, *, fetch: bool = True) -> PublicUs
 def get_all(cursor: Cursor) -> list[PublicUser]:
     sql = """
     SELECT *
-    FROM user
+    FROM xuser
     """
     cursor.execute(sql)
     return [row_to_model(row) for row in cursor.fetchall()]
@@ -64,19 +63,19 @@ def get_all(cursor: Cursor) -> list[PublicUser]:
 def get_one(cursor: Cursor, name: str, *, public: bool = True) -> PublicUser | PrivateUser:
     sql = """
     SELECT *
-    FROM user
+    FROM xuser
     WHERE name = :name
     """
     cursor.execute(sql, {"name": name})
     if row := cursor.fetchone():
         return row_to_model(row, public=public)
     else:
-        raise EntityNotFoundError(entity="user", key=name)
+        raise EntityNotFoundError(entity="xuser", key=name)
 
 
 def replace(cursor: Cursor, name: str, user: PublicUser, *, fetch: bool = True) -> PublicUser:
     sql = """
-    UPDATE user
+    UPDATE xuser
     SET name = :name,
         roles = :roles
     WHERE name = :name_old
@@ -87,7 +86,7 @@ def replace(cursor: Cursor, name: str, user: PublicUser, *, fetch: bool = True) 
     if cursor.rowcount == 1:
         return get_one(cursor, user.name) if fetch else user
     else:
-        raise EntityNotFoundError(entity="user", key=name)
+        raise EntityNotFoundError(entity="xuser", key=name)
 
 
 def modify(cursor: Cursor, name: str, user: PartialUser, *, fetch: bool = True) -> PublicUser:
@@ -101,13 +100,10 @@ def update_model(user: PublicUser, update: PartialUser) -> PublicUser:
 
 
 def delete(cursor: Cursor, name: str) -> None:
-    user = get_one(cursor, name, public=False)
     sql = """
-    DELETE FROM user
+    DELETE FROM xuser
     WHERE name = :name
     """
     cursor.execute(sql, {"name": name})
-    if cursor.rowcount == 1:
-        xuser.create(cursor, user, fetch=False)
-    else:
-        raise EntityNotFoundError(entity="user", key=name)
+    if cursor.rowcount != 1:
+        raise EntityNotFoundError(entity="xuser", key=name)

@@ -1,10 +1,11 @@
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
+from cryptid.web.auth import admin_role
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import creature as service
@@ -14,8 +15,8 @@ else:
 router = APIRouter(prefix="/creatures")
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_role)])
+@router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_role)])
 def create(creature: Creature) -> Creature:
     try:
         return service.create(creature)
@@ -38,8 +39,8 @@ def get_one(name: str) -> Creature:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{name}")
-@router.put("/{name}/")
+@router.put("/{name}", dependencies=[Depends(admin_role)])
+@router.put("/{name}/", dependencies=[Depends(admin_role)])
 def replace(name: str, creature: Creature) -> Creature:
     try:
         return service.replace(name, creature)
@@ -47,8 +48,8 @@ def replace(name: str, creature: Creature) -> Creature:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.patch("/{name}")
-@router.patch("/{name}/")
+@router.patch("/{name}", dependencies=[Depends(admin_role)])
+@router.patch("/{name}/", dependencies=[Depends(admin_role)])
 def modify(name: str, creature: PartialCreature) -> Creature:
     try:
         return service.modify(name, creature)
@@ -56,8 +57,8 @@ def modify(name: str, creature: PartialCreature) -> Creature:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.delete("/{name}", status_code=status.HTTP_204_NO_CONTENT)
-@router.delete("/{name}/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
+@router.delete("/{name}/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
 def delete(name: str) -> None:
     try:
         service.delete(name)

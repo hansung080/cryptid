@@ -6,7 +6,7 @@ from cryptid.main import app
 from cryptid.model.explorer import Explorer, PartialExplorer
 
 from tests.common import count
-from tests.full.common import assert_response
+from tests.full.common import assert_response, make_headers, admin_token
 
 key_num = count()
 client = TestClient(app)
@@ -31,12 +31,12 @@ def noah() -> Explorer:
 
 
 def test_create(claude: Explorer) -> None:
-    resp = client.post("/explorers", json=claude.model_dump())
+    resp = client.post("/explorers", headers=make_headers(token=admin_token), json=claude.model_dump())
     assert_response(resp, status_code=status.HTTP_201_CREATED, json=claude)
 
 
 def test_create_already_exists(claude: Explorer) -> None:
-    resp = client.post("/explorers", json=claude.model_dump())
+    resp = client.post("/explorers", headers=make_headers(token=admin_token), json=claude.model_dump())
     assert_response(resp, status_code=status.HTTP_409_CONFLICT)
 
 
@@ -56,33 +56,33 @@ def test_get_one_not_found(noah: Explorer) -> None:
 
 
 def test_replace(claude: Explorer, noah: Explorer) -> None:
-    resp = client.put(f"/explorers/{claude.name}", json=noah.model_dump())
+    resp = client.put(f"/explorers/{claude.name}", headers=make_headers(token=admin_token), json=noah.model_dump())
     assert_response(resp, status_code=status.HTTP_200_OK, json=noah)
 
 
 def test_replace_not_found(claude: Explorer) -> None:
-    resp = client.put(f"/explorers/{claude.name}", json=claude.model_dump())
+    resp = client.put(f"/explorers/{claude.name}", headers=make_headers(token=admin_token), json=claude.model_dump())
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)
 
 
 def test_modify(noah: Explorer) -> None:
     noah.description = f"I'm Noah Weiser {key_num}"
     explorer = PartialExplorer(description=noah.description).model_dump(exclude_unset=True)
-    resp = client.patch(f"/explorers/{noah.name}", json=explorer)
+    resp = client.patch(f"/explorers/{noah.name}", headers=make_headers(token=admin_token), json=explorer)
     assert_response(resp, status_code=status.HTTP_200_OK, json=noah)
 
 
 def test_modify_not_found(claude: Explorer) -> None:
     explorer = PartialExplorer().model_dump(exclude_unset=True)
-    resp = client.patch(f"/explorers/{claude.name}", json=explorer)
+    resp = client.patch(f"/explorers/{claude.name}", headers=make_headers(token=admin_token), json=explorer)
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)
 
 
 def test_delete(noah: Explorer) -> None:
-    resp = client.delete(f"/explorers/{noah.name}")
+    resp = client.delete(f"/explorers/{noah.name}", headers=make_headers(token=admin_token))
     assert_response(resp, status_code=status.HTTP_204_NO_CONTENT, body_none=True)
 
 
 def test_delete_not_found(noah: Explorer) -> None:
-    resp = client.delete(f"/explorers/{noah.name}")
+    resp = client.delete(f"/explorers/{noah.name}", headers=make_headers(token=admin_token))
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)

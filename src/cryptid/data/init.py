@@ -1,14 +1,24 @@
 import os
 from pathlib import Path
 from sqlite3 import connect, Connection, Cursor, IntegrityError
+from typing import Callable, ParamSpec, TypeVar, Concatenate, TypeAlias
 
-__all__ = ["database", "get_conn", "Connection", "Cursor", "IntegrityError"]
+__all__ = [
+    "database",
+    "get_conn",
+    "get_cursor",
+    "transaction",
+    "transaction_with",
+    "Connection",
+    "Cursor",
+    "IntegrityError",
+]
 
 database: str | None = None
 _conn: Connection | None = None
 
 
-def init_db(path: str | None = None, reset: bool = False):
+def _init_db(path: str | None = None, reset: bool = False):
     global database, _conn
     if _conn:
         if not reset:
@@ -37,15 +47,7 @@ def init_db(path: str | None = None, reset: bool = False):
     _conn = connect(database, isolation_level="DEFERRED", check_same_thread=False)
 
 
-init_db()
-
-
-def get_conn(new: bool = False) -> Connection:
-    if new:
-        return connect(database, isolation_level="DEFERRED", check_same_thread=False)
-    else:
-        return _conn
-
+_init_db()
 
 # This is the rough implementation of sqlite3.Connection.ContextManager.
 # class Connection:
@@ -61,3 +63,38 @@ def get_conn(new: bool = False) -> Connection:
 #             self.commit()
 #         else:
 #             self.rollback()
+
+
+def get_conn(*, new: bool = False) -> Connection:
+    if new:
+        return connect(database, isolation_level="DEFERRED", check_same_thread=False)
+    else:
+        return _conn
+
+
+def get_cursor(*, new_conn: bool = False) -> Cursor:
+    return get_conn(new=new_conn).cursor()
+
+
+P = ParamSpec("P")
+R = TypeVar("R")
+TxFunc: TypeAlias = Callable[Concatenate[Cursor, P], R]
+TxWrapper: TypeAlias = Callable[P, R]
+
+
+def transaction(func: TxFunc) -> TxWrapper:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        with get_conn() as conn:
+            result = func(conn.cursor(), *args, **kwargs)
+            return result
+    return wrapper
+
+
+def transaction_with(*, new_conn: bool) -> Callable[[TxFunc], TxWrapper]:
+    def decorator(func: TxFunc) -> TxWrapper:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+            with get_conn(new=new_conn) as conn:
+                result = func(conn.cursor(), *args, **kwargs)
+                return result
+        return wrapper
+    return decorator

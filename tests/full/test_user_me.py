@@ -113,8 +113,11 @@ def test_delete_me_conflict() -> None:
     assert_response(resp, status_code=status.HTTP_409_CONFLICT)
 
 
-# FIXME: It must be HTTP_409_CONFLICT.
-def test_delete_me_not_found(john: PublicUser) -> None:
+def test_delete_me_conflict_again() -> None:
     resp = client.delete(f"/users/me", headers=make_headers(token=john_token))
-    print(f"KHS: {resp.status_code}")
+    assert_response(resp, status_code=status.HTTP_409_CONFLICT)
+
+
+def test_delete_me_not_found() -> None:
+    resp = client.delete(f"/users/me", headers=make_headers(token=mike_token))
     assert_response(resp, status_code=status.HTTP_404_NOT_FOUND)

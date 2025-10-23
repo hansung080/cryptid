@@ -6,7 +6,7 @@ import bcrypt
 from dotenv import load_dotenv
 from jose import jwt, JWTError
 
-from cryptid.data.init import get_conn
+from cryptid.data.init import get_cursor
 from cryptid.error import EntityNotFoundError, AuthenticationError, JWTValidationError
 from cryptid.model.auth import Token, AuthUser
 from cryptid.model.user import PublicUser, PrivateUser
@@ -15,9 +15,6 @@ if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data
 else:
     from cryptid.fake.data import user as data
-
-_conn = get_conn()
-_cursor = _conn.cursor()
 
 load_dotenv()
 
@@ -44,7 +41,7 @@ def authenticate_user(name: str, password: str) -> PrivateUser:
 
 def find_user(name: str, public: bool = True) -> PublicUser | PrivateUser:
     try:
-        return data.get_one(_cursor, name, public=public)
+        return data.get_one(get_cursor(), name, public=public)
     except EntityNotFoundError:
         raise AuthenticationError(msg=f"user '{name}' does not exist")
 

@@ -1,29 +1,32 @@
 import json
 from typing import Any, TypeAlias
 
-from cryptid.data.init import get_conn, Cursor, IntegrityError
+from cryptid.data.init import transaction_with, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 
-_cursor = get_conn()
-
-_cursor.execute("""
-CREATE TABLE IF NOT EXISTS user (
-    name TEXT PRIMARY KEY,
-    hash TEXT NOT NULL,
-    roles TEXT NOT NULL CHECK(json_valid(roles))
-)
-""")
-
 UserRow: TypeAlias = tuple[str, str, str]
 
-_cursor.execute("""
-CREATE TABLE IF NOT EXISTS xuser (
-    name TEXT PRIMARY KEY,
-    hash TEXT NOT NULL,
-    roles TEXT NOT NULL CHECK(json_valid(roles))
-)
-""")
+
+@transaction_with(new_conn=False)
+def _create_tables(cursor: Cursor) -> None:
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user (
+        name TEXT PRIMARY KEY,
+        hash TEXT NOT NULL,
+        roles TEXT NOT NULL CHECK(json_valid(roles))
+    )
+    """)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS xuser (
+        name TEXT PRIMARY KEY,
+        hash TEXT NOT NULL,
+        roles TEXT NOT NULL CHECK(json_valid(roles))
+    )
+    """)
+
+
+_create_tables()
 
 
 def model_to_dict(user: PublicUser | PrivateUser) -> dict[str, Any]:

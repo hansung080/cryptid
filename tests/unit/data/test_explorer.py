@@ -1,15 +1,13 @@
 import pytest
 
 from cryptid.data import explorer as data
-from cryptid.data.init import get_conn
+from cryptid.data.init import get_cursor, transaction_with, Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer, PartialExplorer
 
 from tests.common import count
 
 key_num = count()
-conn = get_conn()
-cursor = conn.cursor()
 
 
 @pytest.fixture
@@ -31,55 +29,79 @@ def noah() -> Explorer:
 
 
 def test_create(claude: Explorer) -> None:
-    resp = data.create(cursor, claude)
-    assert resp == claude
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        resp = data.create(cursor, claude)
+        assert resp == claude
+    inner()
 
 
 def test_create_already_exists(claude: Explorer) -> None:
-    with pytest.raises(EntityAlreadyExistsError):
-        _ = data.create(cursor, claude)
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        with pytest.raises(EntityAlreadyExistsError):
+            _ = data.create(cursor, claude)
+    inner()
 
 
 def test_get_all() -> None:
-    resp = data.get_all(cursor)
+    resp = data.get_all(get_cursor())
     assert len(resp) > 0
 
 
 def test_get_one(claude: Explorer) -> None:
-    resp = data.get_one(cursor, claude.name)
+    resp = data.get_one(get_cursor(), claude.name)
     assert resp == claude
 
 
 def test_get_one_not_found(noah: Explorer) -> None:
     with pytest.raises(EntityNotFoundError):
-        _ = data.get_one(cursor, noah.name)
+        _ = data.get_one(get_cursor(), noah.name)
 
 
 def test_replace(claude: Explorer, noah: Explorer) -> None:
-    resp = data.replace(cursor, claude.name, noah)
-    assert resp == noah
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        resp = data.replace(cursor, claude.name, noah)
+        assert resp == noah
+    inner()
 
 
 def test_replace_not_found(claude: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        _ = data.replace(cursor, claude.name, claude)
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        with pytest.raises(EntityNotFoundError):
+            _ = data.replace(cursor, claude.name, claude)
+    inner()
 
 
 def test_modify(noah: Explorer) -> None:
-    noah.description = f"I'm Noah Weiser {key_num}"
-    resp = data.modify(cursor, noah.name, PartialExplorer(description=noah.description))
-    assert resp == noah
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        noah.description = f"I'm Noah Weiser {key_num}"
+        resp = data.modify(cursor, noah.name, PartialExplorer(description=noah.description))
+        assert resp == noah
+    inner()
 
 
 def test_modify_not_found(claude: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        _ = data.modify(cursor, claude.name, PartialExplorer())
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        with pytest.raises(EntityNotFoundError):
+            _ = data.modify(cursor, claude.name, PartialExplorer())
+    inner()
 
 
 def test_delete(noah: Explorer) -> None:
-    assert data.delete(cursor, noah.name) is None
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        assert data.delete(cursor, noah.name) is None
+    inner()
 
 
 def test_delete_not_found(noah: Explorer) -> None:
-    with pytest.raises(EntityNotFoundError):
-        data.delete(cursor, noah.name)
+    @transaction_with(new_conn=False)
+    def inner(cursor: Cursor) -> None:
+        with pytest.raises(EntityNotFoundError):
+            data.delete(cursor, noah.name)
+    inner()

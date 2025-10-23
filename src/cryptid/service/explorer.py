@@ -1,6 +1,6 @@
 import os
 
-from cryptid.data.init import get_conn
+from cryptid.data.init import get_cursor, transaction, Cursor
 from cryptid.model.explorer import Explorer, PartialExplorer
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
@@ -8,29 +8,30 @@ if not os.getenv("CRYPTID_UNIT_TEST"):
 else:
     from cryptid.fake.data import explorer as data
 
-_conn = get_conn()
-_cursor = _conn.cursor()
 
-
-def create(explorer: Explorer) -> Explorer:
-    return data.create(_cursor, explorer)
+@transaction
+def create(cursor: Cursor, explorer: Explorer) -> Explorer:
+    return data.create(cursor, explorer)
 
 
 def get_all() -> list[Explorer]:
-    return data.get_all(_cursor)
+    return data.get_all(get_cursor())
 
 
 def get_one(name: str) -> Explorer:
-    return data.get_one(_cursor, name)
+    return data.get_one(get_cursor(), name)
 
 
-def replace(name: str, explorer: Explorer) -> Explorer:
-    return data.replace(_cursor, name, explorer)
+@transaction
+def replace(cursor: Cursor, name: str, explorer: Explorer) -> Explorer:
+    return data.replace(cursor, name, explorer)
 
 
-def modify(name: str, explorer: PartialExplorer) -> Explorer:
-    return data.modify(_cursor, name, explorer)
+@transaction
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer) -> Explorer:
+    return data.modify(cursor, name, explorer)
 
 
-def delete(name: str) -> None:
-    data.delete(_cursor, name)
+@transaction
+def delete(cursor: Cursor, name: str) -> None:
+    data.delete(cursor, name)

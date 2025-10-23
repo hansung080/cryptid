@@ -1,20 +1,24 @@
 from typing import Any, TypeAlias
 
-from cryptid.data.init import get_conn, Cursor, IntegrityError
+from cryptid.data.init import transaction_with, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer, PartialExplorer
 
-_cursor = get_conn()
-
-_cursor.execute("""
-CREATE TABLE IF NOT EXISTS explorer (
-    name TEXT PRIMARY KEY,
-    country TEXT NOT NULL,
-    description TEXT NOT NULL
-)
-""")
-
 ExplorerRow: TypeAlias = tuple[str, str, str]
+
+
+@transaction_with(new_conn=False)
+def _create_table(cursor: Cursor) -> None:
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS explorer (
+        name TEXT PRIMARY KEY,
+        country TEXT NOT NULL,
+        description TEXT NOT NULL
+    )
+    """)
+
+
+_create_table()
 
 
 def model_to_dict(explorer: Explorer) -> dict[str, Any]:

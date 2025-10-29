@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any, TypeAlias
 
-from cryptid.data.init import transaction_with, Cursor, IntegrityError
+from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 
@@ -86,7 +86,7 @@ def create(cursor: Cursor, user: PrivateUser, *, fetch: bool = True) -> PublicUs
     try:
         cursor.execute(sql, model_to_dict(user, for_create=True))
     except IntegrityError as e:
-        if "UNIQUE constraint failed" in str(e):
+        if is_unique_constraint_failed(e):
             raise EntityAlreadyExistsError(entity="xuser", key=user.id)
         raise e
     return get_one(cursor, user.id) if fetch else None
@@ -108,10 +108,9 @@ def get_one(cursor: Cursor, id_: str, *, public: bool = True) -> PublicUser | Pr
     WHERE id = :id
     """
     cursor.execute(sql, {"id": id_})
-    if row := cursor.fetchone():
-        return row_to_model(row, public=public)
-    else:
+    if (row := cursor.fetchone()) is None:
         raise EntityNotFoundError(entity="xuser", key=id_)
+    return row_to_model(row, public=public)
 
 
 def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: bool = True) -> PublicUser | None:
@@ -125,10 +124,9 @@ def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: bool = True) -
     params = model_to_dict(user, for_update=True)
     params["id"] = id_
     cursor.execute(sql, params)
-    if cursor.rowcount == 1:
-        return get_one(cursor, id_) if fetch else None
-    else:
+    if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="xuser", key=id_)
+    return get_one(cursor, id_) if fetch else None
 
 
 def modify(cursor: Cursor, id_: str, user: PartialUser, *, fetch: bool = True) -> PublicUser | None:
@@ -147,5 +145,5 @@ def delete(cursor: Cursor, id_: str) -> None:
     WHERE id = :id
     """
     cursor.execute(sql, {"id": id_})
-    if cursor.rowcount != 1:
+    if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="xuser", key=id_)

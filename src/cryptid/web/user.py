@@ -56,6 +56,8 @@ def replace_me(user: PublicUser, me: AuthUser = Depends(user_role)) -> PublicUse
         return service.replace(me.id, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.put("/{id_}", dependencies=[Depends(admin_role)])
@@ -65,6 +67,8 @@ def replace(id_: str, user: PublicUser) -> PublicUser:
         return service.replace(id_, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.patch("/me")
@@ -74,6 +78,8 @@ def modify_me(user: PartialUser, me: AuthUser = Depends(user_role)) -> PublicUse
         return service.modify(me.id, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.patch("/{id_}", dependencies=[Depends(admin_role)])
@@ -83,6 +89,8 @@ def modify(id_: str, user: PartialUser) -> PublicUser:
         return service.modify(id_, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)

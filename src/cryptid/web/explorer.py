@@ -46,6 +46,8 @@ def replace(name: str, explorer: Explorer) -> Explorer:
         return service.replace(name, explorer)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.patch("/{name}", dependencies=[Depends(admin_role)])
@@ -55,6 +57,8 @@ def modify(name: str, explorer: PartialExplorer) -> Explorer:
         return service.modify(name, explorer)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except EntityAlreadyExistsError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.delete("/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])

@@ -9,6 +9,7 @@ __all__ = [
     "get_cursor",
     "transaction",
     "transaction_with",
+    "is_unique_constraint_failed",
     "Connection",
     "Cursor",
     "IntegrityError",
@@ -98,3 +99,7 @@ def transaction_with(*, new_conn: bool) -> Callable[[TxFunc], TxWrapper]:
                 return result
         return wrapper
     return decorator
+
+
+def is_unique_constraint_failed(error: IntegrityError) -> bool:
+    return "UNIQUE constraint failed" in str(error)

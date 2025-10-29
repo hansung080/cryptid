@@ -1,6 +1,6 @@
 from typing import Any, TypeAlias
 
-from cryptid.data.init import transaction_with, Cursor, IntegrityError
+from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cursor, IntegrityError
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 
@@ -46,10 +46,9 @@ def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creatur
     try:
         cursor.execute(sql, model_to_dict(creature))
     except IntegrityError as e:
-        if "UNIQUE constraint failed" in str(e):
+        if is_unique_constraint_failed(e):
             raise EntityAlreadyExistsError(entity="creature", key=creature.name)
-        else:
-            raise e
+        raise e
     return get_one(cursor, creature.name) if fetch else None
 
 
@@ -69,10 +68,9 @@ def get_one(cursor: Cursor, name: str) -> Creature:
     WHERE name = :name
     """
     cursor.execute(sql, {"name": name})
-    if row := cursor.fetchone():
-        return row_to_model(row)
-    else:
+    if (row := cursor.fetchone()) is None:
         raise EntityNotFoundError(entity="creature", key=name)
+    return row_to_model(row)
 
 
 def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True) -> Creature | None:
@@ -87,11 +85,15 @@ def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True
     """
     params = model_to_dict(creature)
     params["name_old"] = name
-    cursor.execute(sql, params)
-    if cursor.rowcount == 1:
-        return get_one(cursor, creature.name) if fetch else None
-    else:
+    try:
+        cursor.execute(sql, params)
+    except IntegrityError as e:
+        if is_unique_constraint_failed(e):
+            raise EntityAlreadyExistsError(entity="creature", key=creature.name)
+        raise e
+    if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="creature", key=name)
+    return get_one(cursor, creature.name) if fetch else None
 
 
 def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature | None:
@@ -110,5 +112,5 @@ def delete(cursor: Cursor, name: str) -> None:
     WHERE name = :name
     """
     cursor.execute(sql, {"name": name})
-    if cursor.rowcount != 1:
+    if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="creature", key=name)

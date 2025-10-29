@@ -4,7 +4,7 @@ from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cur
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer, PartialExplorer
 
-ExplorerRow: TypeAlias = tuple[str, str, str]
+Row: TypeAlias = tuple[str, str, str]
 
 
 @transaction_with(new_conn=False)
@@ -25,7 +25,7 @@ def model_to_dict(explorer: Explorer) -> dict[str, Any]:
     return explorer.model_dump()
 
 
-def row_to_model(row: ExplorerRow) -> Explorer:
+def row_to_model(row: Row) -> Explorer:
     name, country, description = row
     return Explorer(
         name=name,

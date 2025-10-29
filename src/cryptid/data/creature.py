@@ -4,7 +4,7 @@ from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cur
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 
-CreatureRow: TypeAlias = tuple[str, str, str, str, str]
+Row: TypeAlias = tuple[str, str, str, str, str]
 
 
 @transaction_with(new_conn=False)
@@ -27,7 +27,7 @@ def model_to_dict(creature: Creature) -> dict[str, Any]:
     return creature.model_dump()
 
 
-def row_to_model(row: CreatureRow) -> Creature:
+def row_to_model(row: Row) -> Creature:
     name, country, area, description, aka = row
     return Creature(
         name=name,

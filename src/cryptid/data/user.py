@@ -7,7 +7,7 @@ from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cur
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PublicUser, PrivateUser, PartialUser
 
-UserRow: TypeAlias = tuple[int, str, str, str, str, str]
+Row: TypeAlias = tuple[int, str, str, str, str, str]
 
 
 @transaction_with(new_conn=False)
@@ -46,7 +46,7 @@ def model_to_dict(
     return user_dict
 
 
-def row_to_model(row: UserRow, *, public: bool = True) -> PublicUser | PrivateUser:
+def row_to_model(row: Row, *, public: bool = True) -> PublicUser | PrivateUser:
     id_, name, hash_, roles, created_at, updated_at = row
     id_ = str(id_)
     roles = json.loads(roles)

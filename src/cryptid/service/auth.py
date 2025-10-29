@@ -23,27 +23,27 @@ JWT_ALGORITHM = os.getenv("CRYPTID_JWT_ALGORITHM", default="HS256")
 JWT_EXPIRES_IN_MINUTES = float(os.getenv("CRYPTID_JWT_EXPIRES_IN_MINUTES", default="15"))
 
 
-def create_token(username: str, password: str) -> Token:
-    user = authenticate_user(username, password)
+def create_token(user_id: str, password: str) -> Token:
+    user = authenticate_user(user_id, password)
     token = create_jwt(
-        claims={"sub": user.name, "roles": user.roles},
+        claims={"sub": user.id, "roles": user.roles},
         expires_in=timedelta(minutes=JWT_EXPIRES_IN_MINUTES),
     )
     return token
 
 
-def authenticate_user(name: str, password: str) -> PrivateUser:
-    user = find_user(name, public=False)
+def authenticate_user(id_: str, password: str) -> PrivateUser:
+    user = find_user(id_, public=False)
     if not verify_password(password, user.hash):
-        raise AuthenticationError(msg=f"wrong password '{password}' for user '{name}'")
+        raise AuthenticationError(msg=f"wrong password '{password}' for user '{id_}'")
     return user
 
 
-def find_user(name: str, public: bool = True) -> PublicUser | PrivateUser:
+def find_user(id_: str, public: bool = True) -> PublicUser | PrivateUser:
     try:
-        return data.get_one(get_cursor(), name, public=public)
+        return data.get_one(get_cursor(), id_, public=public)
     except EntityNotFoundError:
-        raise AuthenticationError(msg=f"user '{name}' does not exist")
+        raise AuthenticationError(msg=f"user '{id_}' does not exist")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
@@ -62,6 +62,8 @@ def create_jwt(claims: dict[str, Any], expires_in: timedelta | None = timedelta(
     else:
         expires_in = None
         expires_at = None
+    # The `iat`, `exp`, `nbf` claims will be converted from datetime to Unix timestamp (integer in seconds),
+    # but the other claims with datetime will cause TypeError: Object of type datetime is not JSON serializable.
     token = jwt.encode(src, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
     return Token(
         access=token,
@@ -81,16 +83,16 @@ def parse_jwt(token: str) -> dict[str, Any]:
 
 def get_user_from_jwt(token: str) -> AuthUser:
     claims = parse_jwt(token)
-    if (username := claims.get("sub")) is None:
+    if (user_id := claims.get("sub")) is None:
         raise JWTValidationError(msg="claim 'sub' required")
     if (roles := claims.get("roles")) is None:
         raise JWTValidationError(msg="claim 'roles' required")
-    return AuthUser(name=username, roles=roles)
+    return AuthUser(id=user_id, roles=roles)
 
 
 def find_user_by_jwt(token: str) -> PublicUser:
     user = get_user_from_jwt(token)
-    return find_user(user.name)
+    return find_user(user.id)
 
 
 def make_hash(plain: str) -> str:

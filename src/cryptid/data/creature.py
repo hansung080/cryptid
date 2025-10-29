@@ -38,7 +38,7 @@ def row_to_model(row: CreatureRow) -> Creature:
     )
 
 
-def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creature:
+def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creature | None:
     sql = """
     INSERT INTO creature (name, country, area, description, aka)
     VALUES (:name, :country, :area, :description, :aka)
@@ -50,7 +50,7 @@ def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creatur
             raise EntityAlreadyExistsError(entity="creature", key=creature.name)
         else:
             raise e
-    return get_one(cursor, creature.name) if fetch else creature
+    return get_one(cursor, creature.name) if fetch else None
 
 
 def get_all(cursor: Cursor) -> list[Creature]:
@@ -75,7 +75,7 @@ def get_one(cursor: Cursor, name: str) -> Creature:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True) -> Creature:
+def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True) -> Creature | None:
     sql = """
     UPDATE creature
     SET name = :name,
@@ -89,12 +89,12 @@ def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True
     params["name_old"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(cursor, creature.name) if fetch else creature
+        return get_one(cursor, creature.name) if fetch else None
     else:
         raise EntityNotFoundError(entity="creature", key=name)
 
 
-def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature:
+def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature | None:
     updated = update_model(get_one(cursor, name), creature)
     return replace(cursor, name, updated, fetch=fetch)
 

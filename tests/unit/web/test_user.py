@@ -9,13 +9,15 @@ from tests.unit.web.common import assert_already_exists_error, assert_not_found_
 
 key_num = count()
 
+_mike = PublicUser(
+    name=f"Mike {key_num}",
+    roles=["user", "admin"],
+)
+
 
 @pytest.fixture
 def mike() -> PublicUser:
-    return PublicUser(
-        name=f"Mike {key_num}",
-        roles=["user", "admin"],
-    )
+    return _mike
 
 
 @pytest.fixture
@@ -26,6 +28,7 @@ def mike_password() -> str:
 @pytest.fixture
 def john() -> PublicUser:
     return PublicUser(
+        id="missing",
         name=f"John {key_num}",
         roles=["user"],
     )
@@ -38,6 +41,9 @@ def test_create(mike: PublicUser, mike_password: str) -> None:
         password=mike_password,
     )
     resp = web.create(user)
+    mike.id = resp.id
+    mike.created_at = resp.created_at
+    mike.updated_at = resp.updated_at
     assert resp == mike
 
 
@@ -58,44 +64,48 @@ def test_get_all() -> None:
 
 
 def test_get_one(mike: PublicUser) -> None:
-    resp = web.get_one(mike.name)
+    resp = web.get_one(mike.id)
     assert resp == mike
 
 
 def test_get_one_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.get_one(john.name)
+        _ = web.get_one(john.id)
         assert_not_found_error(e)
 
 
 def test_replace(mike: PublicUser, john: PublicUser) -> None:
-    resp = web.replace(mike.name, john)
-    assert resp == john
+    resp = web.replace(mike.id, john)
+    mike.name = john.name
+    mike.roles = john.roles
+    mike.updated_at = resp.updated_at
+    assert resp == mike
 
 
-def test_replace_not_found(mike: PublicUser) -> None:
+def test_replace_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.replace(mike.name, mike)
+        _ = web.replace(john.id, john)
         assert_not_found_error(e)
 
 
-def test_modify(john: PublicUser) -> None:
-    john.roles = ["user", "admin"]
-    resp = web.modify(john.name, PartialUser(roles=john.roles))
-    assert resp == john
+def test_modify(mike: PublicUser) -> None:
+    mike.roles = ["user", "admin"]
+    resp = web.modify(mike.id, PartialUser(roles=mike.roles))
+    mike.updated_at = resp.updated_at
+    assert resp == mike
 
 
-def test_modify_not_found(mike: PublicUser) -> None:
+def test_modify_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.modify(mike.name, PartialUser())
+        _ = web.modify(john.id, PartialUser())
         assert_not_found_error(e)
 
 
-def test_delete(john: PublicUser) -> None:
-    assert web.delete(john.name) is None
+def test_delete(mike: PublicUser) -> None:
+    assert web.delete(mike.id) is None
 
 
 def test_delete_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        web.delete(john.name)
+        web.delete(john.id)
         assert_not_found_error(e)

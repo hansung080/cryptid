@@ -35,16 +35,16 @@ def get_all() -> list[PublicUser]:
 @router.get("/me/")
 def get_me(me: AuthUser = Depends(user_role)) -> PublicUser:
     try:
-        return service.get_one(me.name)
+        return service.get_one(me.id)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.get("/{name}", dependencies=[Depends(admin_role)])
-@router.get("/{name}/", dependencies=[Depends(admin_role)])
-def get_one(name: str) -> PublicUser:
+@router.get("/{id_}", dependencies=[Depends(admin_role)])
+@router.get("/{id_}/", dependencies=[Depends(admin_role)])
+def get_one(id_: str) -> PublicUser:
     try:
-        return service.get_one(name)
+        return service.get_one(id_)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -53,16 +53,16 @@ def get_one(name: str) -> PublicUser:
 @router.put("/me/")
 def replace_me(user: PublicUser, me: AuthUser = Depends(user_role)) -> PublicUser:
     try:
-        return service.replace(me.name, user)
+        return service.replace(me.id, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{name}", dependencies=[Depends(admin_role)])
-@router.put("/{name}/", dependencies=[Depends(admin_role)])
-def replace(name: str, user: PublicUser) -> PublicUser:
+@router.put("/{id_}", dependencies=[Depends(admin_role)])
+@router.put("/{id_}/", dependencies=[Depends(admin_role)])
+def replace(id_: str, user: PublicUser) -> PublicUser:
     try:
-        return service.replace(name, user)
+        return service.replace(id_, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -71,16 +71,16 @@ def replace(name: str, user: PublicUser) -> PublicUser:
 @router.patch("/me/")
 def modify_me(user: PartialUser, me: AuthUser = Depends(user_role)) -> PublicUser:
     try:
-        return service.modify(me.name, user)
+        return service.modify(me.id, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.patch("/{name}", dependencies=[Depends(admin_role)])
-@router.patch("/{name}/", dependencies=[Depends(admin_role)])
-def modify(name: str, user: PartialUser) -> PublicUser:
+@router.patch("/{id_}", dependencies=[Depends(admin_role)])
+@router.patch("/{id_}/", dependencies=[Depends(admin_role)])
+def modify(id_: str, user: PartialUser) -> PublicUser:
     try:
-        return service.modify(name, user)
+        return service.modify(id_, user)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -89,18 +89,18 @@ def modify(name: str, user: PartialUser) -> PublicUser:
 @router.delete("/me/", status_code=status.HTTP_204_NO_CONTENT)
 def delete_me(me: AuthUser = Depends(user_role)) -> None:
     try:
-        service.delete(me.name)
+        service.delete(me.id)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except EntityAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
-@router.delete("/{name}/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
-def delete(name: str) -> None:
+@router.delete("/{id_}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
+@router.delete("/{id_}/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
+def delete(id_: str) -> None:
     try:
-        service.delete(name)
+        service.delete(id_)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except EntityAlreadyExistsError as e:

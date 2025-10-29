@@ -16,17 +16,17 @@ def get_all() -> list[PublicUser]:
     return data.get_all(None)
 
 
-def get_one(name: str) -> PublicUser:
-    return data.get_one(None, name)
+def get_one(id_: str) -> PublicUser:
+    return data.get_one(None, id_)
 
 
-def replace(name: str, user: PublicUser) -> PublicUser:
-    return data.replace(None, name, user)
+def replace(id_: str, user: PublicUser) -> PublicUser:
+    return data.replace(None, id_, user)
 
 
-def modify(name: str, user: PartialUser) -> PublicUser:
-    return data.modify(None, name, user)
+def modify(id_: str, user: PartialUser) -> PublicUser:
+    return data.modify(None, id_, user)
 
 
-def delete(name: str) -> None:
-    data.delete(None, name)
+def delete(id_: str) -> None:
+    data.delete(None, id_)

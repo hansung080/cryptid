@@ -40,11 +40,15 @@ def make_headers(*, token: str | None = None) -> dict[str, Any]:
 def create_user(user: SignInUser) -> PublicUser:
     resp = client.post("/users", json=user.model_dump())
     assert resp.status_code == status.HTTP_201_CREATED
-    return PublicUser.model_validate(resp.json())
+    resp_user = PublicUser.model_validate(resp.json())
+    user.id = resp_user.id
+    user.created_at = resp_user.created_at
+    user.updated_at = resp_user.updated_at
+    return resp_user
 
 
 def create_token(user: SignInUser) -> TokenResponse:
-    resp = client.post("/auth/token", data={"username": user.name, "password": user.password})
+    resp = client.post("/auth/token", data={"username": user.id, "password": user.password})
     assert resp.status_code == status.HTTP_201_CREATED
     return TokenResponse.model_validate(resp.json())
 

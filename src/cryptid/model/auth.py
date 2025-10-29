@@ -29,5 +29,5 @@ class TokenResponse(BaseModel):
 
 
 class AuthUser(BaseModel):
-    name: str
+    id: str
     roles: list[str]

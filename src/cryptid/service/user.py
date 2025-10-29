@@ -24,20 +24,20 @@ def get_all() -> list[PublicUser]:
     return data.get_all(get_cursor())
 
 
-def get_one(name: str) -> PublicUser:
-    return data.get_one(get_cursor(), name)
+def get_one(id_: str) -> PublicUser:
+    return data.get_one(get_cursor(), id_)
 
 
 @transaction
-def replace(cursor: Cursor, name: str, user: PublicUser) -> PublicUser:
-    return data.replace(cursor, name, user)
+def replace(cursor: Cursor, id_: str, user: PublicUser) -> PublicUser:
+    return data.replace(cursor, id_, user)
 
 
 @transaction
-def modify(cursor: Cursor, name: str, user: PartialUser) -> PublicUser:
-    return data.modify(cursor, name, user)
+def modify(cursor: Cursor, id_: str, user: PartialUser) -> PublicUser:
+    return data.modify(cursor, id_, user)
 
 
 @transaction
-def delete(cursor: Cursor, name: str) -> None:
-    data.delete(cursor, name)
+def delete(cursor: Cursor, id_: str) -> None:
+    data.delete(cursor, id_)

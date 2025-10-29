@@ -34,7 +34,7 @@ def row_to_model(row: ExplorerRow) -> Explorer:
     )
 
 
-def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = True) -> Explorer:
+def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = True) -> Explorer | None:
     sql = """
     INSERT INTO explorer (name, country, description)
     VALUES (:name, :country, :description)
@@ -46,7 +46,7 @@ def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = True) -> Explore
             raise EntityAlreadyExistsError(entity="explorer", key=explorer.name)
         else:
             raise e
-    return get_one(cursor, explorer.name) if fetch else explorer
+    return get_one(cursor, explorer.name) if fetch else None
 
 
 def get_all(cursor: Cursor) -> list[Explorer]:
@@ -71,7 +71,7 @@ def get_one(cursor: Cursor, name: str) -> Explorer:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer:
+def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer | None:
     sql = """
     UPDATE explorer
     SET name = :name,
@@ -83,12 +83,12 @@ def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True
     params["name_old"] = name
     cursor.execute(sql, params)
     if cursor.rowcount == 1:
-        return get_one(cursor, explorer.name) if fetch else explorer
+        return get_one(cursor, explorer.name) if fetch else None
     else:
         raise EntityNotFoundError(entity="explorer", key=name)
 
 
-def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer:
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer | None:
     updated = update_model(get_one(cursor, name), explorer)
     return replace(cursor, name, updated, fetch=fetch)
 

@@ -59,18 +59,18 @@ def test_create_already_exists(mike: PublicUser, mike_password: str) -> None:
 
 
 def test_get_all() -> None:
-    resp = web.get_all()
+    resp = web.get_all(deleted=False)
     assert len(resp) > 0
 
 
 def test_get_one(mike: PublicUser) -> None:
-    resp = web.get_one(mike.id)
+    resp = web.get_one(mike.id, deleted=False)
     assert resp == mike
 
 
 def test_get_one_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.get_one(john.id)
+        _ = web.get_one(john.id, deleted=False)
         assert_not_found_error(e)
 
 

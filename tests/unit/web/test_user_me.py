@@ -54,18 +54,18 @@ def test_create(mike: PublicUser, mike_password: str) -> None:
 
 
 def test_get_me(mike: PublicUser) -> None:
-    resp = web.get_me(me=mike.to_auth_user())
+    resp = web.get_me(mike.to_auth_user())
     assert resp == mike
 
 
 def test_get_me_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.get_me(me=john.to_auth_user())
+        _ = web.get_me(john.to_auth_user())
         assert_not_found_error(e)
 
 
 def test_replace_me(mike: PublicUser, john: PublicUser) -> None:
-    resp = web.replace_me(john, me=mike.to_auth_user())
+    resp = web.replace_me(mike.to_auth_user(), john)
     mike.name = john.name
     mike.roles = john.roles
     mike.updated_at = resp.updated_at
@@ -74,28 +74,28 @@ def test_replace_me(mike: PublicUser, john: PublicUser) -> None:
 
 def test_replace_me_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.replace_me(john, me=john.to_auth_user())
+        _ = web.replace_me(john.to_auth_user(), john)
         assert_not_found_error(e)
 
 
 def test_modify_me(mike: PublicUser) -> None:
     mike.roles = ["user", "admin"]
-    resp = web.modify_me(PartialUser(roles=mike.roles), me=mike.to_auth_user())
+    resp = web.modify_me(mike.to_auth_user(), PartialUser(roles=mike.roles))
     mike.updated_at = resp.updated_at
     assert resp == mike
 
 
 def test_modify_me_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        _ = web.modify_me(PartialUser(), me=john.to_auth_user())
+        _ = web.modify_me(john.to_auth_user(), PartialUser())
         assert_not_found_error(e)
 
 
 def test_delete_me(mike: PublicUser) -> None:
-    assert web.delete_me(me=mike.to_auth_user()) is None
+    assert web.delete_me(mike.to_auth_user()) is None
 
 
 def test_delete_me_not_found(john: PublicUser) -> None:
     with pytest.raises(HTTPException) as e:
-        web.delete_me(me=john.to_auth_user())
+        web.delete_me(john.to_auth_user())
         assert_not_found_error(e)

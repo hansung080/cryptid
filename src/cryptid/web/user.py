@@ -1,6 +1,6 @@
 import os
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Query, Body, Depends
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
@@ -27,8 +27,8 @@ def create(user: SignInUser) -> PublicUser:
 
 @router.get("", dependencies=[Depends(admin_role)])
 @router.get("/", dependencies=[Depends(admin_role)])
-def get_all() -> list[PublicUser]:
-    return service.get_all()
+def get_all(*, deleted: bool = Query(False)) -> list[PublicUser]:
+    return service.get_all(deleted=deleted)
 
 
 @router.get("/me")
@@ -42,16 +42,16 @@ def get_me(me: AuthUser = Depends(user_role)) -> PublicUser:
 
 @router.get("/{id_}", dependencies=[Depends(admin_role)])
 @router.get("/{id_}/", dependencies=[Depends(admin_role)])
-def get_one(id_: str) -> PublicUser:
+def get_one(id_: str, *, deleted: bool = Query(False)) -> PublicUser:
     try:
-        return service.get_one(id_)
+        return service.get_one(id_, deleted=deleted)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.put("/me")
 @router.put("/me/")
-def replace_me(user: PublicUser, me: AuthUser = Depends(user_role)) -> PublicUser:
+def replace_me(me: AuthUser = Depends(user_role), user: PublicUser = Body(...)) -> PublicUser:
     try:
         return service.replace(me.id, user)
     except EntityNotFoundError as e:
@@ -73,7 +73,7 @@ def replace(id_: str, user: PublicUser) -> PublicUser:
 
 @router.patch("/me")
 @router.patch("/me/")
-def modify_me(user: PartialUser, me: AuthUser = Depends(user_role)) -> PublicUser:
+def modify_me(me: AuthUser = Depends(user_role), user: PartialUser = Body(...)) -> PublicUser:
     try:
         return service.modify(me.id, user)
     except EntityNotFoundError as e:

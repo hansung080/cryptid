@@ -5,7 +5,7 @@ from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
 from cryptid.service.auth import make_hash
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
-    from cryptid.data import user as data
+    from cryptid.data import user as data, xuser
 else:
     from cryptid.fake.data import user as data
 
@@ -20,11 +20,15 @@ def create(cursor: Cursor, user: SignInUser) -> PublicUser:
     return data.create(cursor, private_user)
 
 
-def get_all() -> list[PublicUser]:
+def get_all(*, deleted: bool = False) -> list[PublicUser]:
+    if deleted:
+        return xuser.get_all(get_cursor())
     return data.get_all(get_cursor())
 
 
-def get_one(id_: str) -> PublicUser:
+def get_one(id_: str, *, deleted: bool = False) -> PublicUser:
+    if deleted:
+        return xuser.get_one(get_cursor(), id_)
     return data.get_one(get_cursor(), id_)
 
 

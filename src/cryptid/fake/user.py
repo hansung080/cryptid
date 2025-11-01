@@ -12,11 +12,15 @@ def create(user: SignInUser) -> PublicUser:
     return data.create(None, private_user)
 
 
-def get_all() -> list[PublicUser]:
+def get_all(*, deleted: bool = False) -> list[PublicUser]:
+    if deleted:
+        raise NotImplementedError("function 'get_all' with argument 'deleted=True' not implemented")
     return data.get_all(None)
 
 
-def get_one(id_: str) -> PublicUser:
+def get_one(id_: str, *, deleted: bool = False) -> PublicUser:
+    if deleted:
+        raise NotImplementedError("function 'get_one' with argument 'deleted=True' not implemented")
     return data.get_one(None, id_)
 
 

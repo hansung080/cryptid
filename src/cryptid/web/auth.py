@@ -9,8 +9,8 @@ from cryptid.error import AuthenticationError, JWTValidationError
 from cryptid.model.auth import AuthUser, Token, TokenResponse
 from cryptid.service import auth as service
 
-router = APIRouter(prefix="/auth")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+router: APIRouter = APIRouter(prefix="/auth")
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_auth_user(token: str = Depends(oauth2_scheme)) -> AuthUser:

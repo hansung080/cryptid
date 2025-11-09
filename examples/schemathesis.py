@@ -10,7 +10,7 @@ from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel
 from starlette import status
 
-app = FastAPI()
+app: FastAPI = FastAPI()
 
 
 # 현재 FastAPI (0.110.0)는 파이썬 3.11이 기본으로 제공하는 OAS (OpenAPI Specification) 버전 (3.1.0)을 지원하지 않는다.

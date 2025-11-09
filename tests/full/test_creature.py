@@ -8,8 +8,8 @@ from cryptid.model.creature import Creature, PartialCreature
 from tests.common import count
 from tests.full.common import admin_token, assert_response, make_headers
 
-key_num = count()
-client = TestClient(app)
+key_num: int = count()
+client: TestClient = TestClient(app)
 
 
 @pytest.fixture

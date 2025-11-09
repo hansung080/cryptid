@@ -7,7 +7,7 @@ from cryptid.web import explorer as web
 from tests.common import count
 from tests.unit.web.common import assert_already_exists_error, assert_not_found_error
 
-key_num = count()
+key_num: int = count()
 
 
 @pytest.fixture

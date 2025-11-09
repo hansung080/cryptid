@@ -18,9 +18,9 @@ else:
 
 load_dotenv()
 
-JWT_SECRET_KEY = os.getenv("CRYPTID_JWT_SECRET_KEY", default="keep-it-secret-keep-it-safe")
-JWT_ALGORITHM = os.getenv("CRYPTID_JWT_ALGORITHM", default="HS256")
-JWT_EXPIRES_IN_MINUTES = float(os.getenv("CRYPTID_JWT_EXPIRES_IN_MINUTES", default="15"))
+JWT_SECRET_KEY: str = os.getenv("CRYPTID_JWT_SECRET_KEY", default="keep-it-secret-keep-it-safe")
+JWT_ALGORITHM: str = os.getenv("CRYPTID_JWT_ALGORITHM", default="HS256")
+JWT_EXPIRES_IN_MINUTES: float = float(os.getenv("CRYPTID_JWT_EXPIRES_IN_MINUTES", default="15"))
 
 
 def create_token(user_id: str, password: str) -> Token:

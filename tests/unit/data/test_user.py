@@ -8,7 +8,7 @@ from cryptid.service.auth import make_hash
 
 from tests.common import count
 
-key_num = count()
+key_num: int = count()
 
 _mike = PublicUser(
     name=f"Mike {key_num}",

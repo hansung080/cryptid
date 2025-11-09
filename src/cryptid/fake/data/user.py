@@ -4,7 +4,7 @@ from cryptid.data.init import Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PartialUser, PrivateUser, PublicUser
 
-_users = {
+_users: dict[str, PublicUser] = {
     "1": PublicUser(
         id="1",
         name="Mike",

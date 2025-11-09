@@ -2,7 +2,7 @@ from cryptid.data.init import Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.explorer import Explorer, PartialExplorer
 
-_explorers = [
+_explorers: list[Explorer] = [
     Explorer(
         name="Claude Hande",
         country="FR",

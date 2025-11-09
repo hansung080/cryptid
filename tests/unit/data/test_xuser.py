@@ -10,9 +10,9 @@ from cryptid.service.auth import make_hash
 
 from tests.common import count
 
-key_num = count()
+key_num: int = count()
 
-_mike = PublicUser(
+_mike: PublicUser = PublicUser(
     id="100000",
     name=f"Mike {key_num}",
     roles=["user", "admin"],

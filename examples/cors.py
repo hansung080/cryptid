@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app: FastAPI = FastAPI()
 app.add_middleware(
     # Ignore the warning: Expected type '_MiddlewareFactory[ParamSpec("P")]', got 'Type[CORSMiddleware]' instead
     # because this code runs fine in the runtime, and it's a formal example from FastAPI.

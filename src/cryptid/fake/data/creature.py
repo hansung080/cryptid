@@ -2,7 +2,7 @@ from cryptid.data.init import Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 
-_creatures = [
+_creatures: list[Creature] = [
     Creature(
         name="Yeti",
         country="CN",

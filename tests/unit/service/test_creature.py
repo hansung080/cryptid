@@ -6,7 +6,7 @@ from cryptid.service import creature as service
 
 from tests.common import count
 
-key_num = count()
+key_num: int = count()
 
 
 @pytest.fixture

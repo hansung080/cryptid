@@ -9,8 +9,8 @@ from cryptid.model.user import PartialUser, SignInUser
 from tests.common import count
 from tests.full.common import admin_token, assert_response, create_token, make_headers
 
-key_num = count()
-client = TestClient(app)
+key_num: int = count()
+client: TestClient = TestClient(app)
 mike_token: str | None = None
 
 

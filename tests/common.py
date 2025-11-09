@@ -1,6 +1,7 @@
 import itertools
+from typing import Iterator
 
-_counter = itertools.count(start=1)
+_counter: Iterator[int] = itertools.count(start=1)
 
 
 def count() -> int:

@@ -11,8 +11,8 @@ from cryptid.model.user import PublicUser, SignInUser
 
 from tests.common import count
 
-key_num = count()
-client = TestClient(app)
+key_num: int = count()
+client: TestClient = TestClient(app)
 
 
 def assert_response(

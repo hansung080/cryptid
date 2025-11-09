@@ -6,9 +6,9 @@ from cryptid.service import user as service
 
 from tests.common import count
 
-key_num = count()
+key_num: int = count()
 
-_mike = PublicUser(
+_mike: PublicUser = PublicUser(
     name=f"Mike {key_num}",
     roles=["user", "admin"],
 )

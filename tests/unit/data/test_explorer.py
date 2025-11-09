@@ -7,7 +7,7 @@ from cryptid.model.explorer import Explorer, PartialExplorer
 
 from tests.common import count
 
-key_num = count()
+key_num: int = count()
 
 
 @pytest.fixture

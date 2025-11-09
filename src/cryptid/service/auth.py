@@ -10,6 +10,7 @@ from cryptid.data.init import get_cursor
 from cryptid.error import AuthenticationError, EntityNotFoundError, JWTValidationError
 from cryptid.model.auth import AuthUser, Token
 from cryptid.model.user import PrivateUser, PublicUser
+from cryptid.utils import util
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data
@@ -18,7 +19,7 @@ else:
 
 load_dotenv()
 
-JWT_SECRET_KEY: str = os.getenv("CRYPTID_JWT_SECRET_KEY", default="keep-it-secret-keep-it-safe")
+JWT_SECRET_KEY: str = util.getenv_or_raise("CRYPTID_JWT_SECRET_KEY")
 JWT_ALGORITHM: str = os.getenv("CRYPTID_JWT_ALGORITHM", default="HS256")
 JWT_EXPIRES_IN_MINUTES: float = float(os.getenv("CRYPTID_JWT_EXPIRES_IN_MINUTES", default="15"))
 

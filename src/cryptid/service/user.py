@@ -1,7 +1,7 @@
 import os
 
-from cryptid.data.init import get_cursor, transaction, Cursor
-from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
+from cryptid.data.init import Cursor, get_cursor, transaction
+from cryptid.model.user import PartialUser, PrivateUser, PublicUser, SignInUser
 from cryptid.service.auth import make_hash
 
 if not os.getenv("CRYPTID_UNIT_TEST"):

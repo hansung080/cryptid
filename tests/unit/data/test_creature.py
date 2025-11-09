@@ -1,7 +1,7 @@
 import pytest
 
 from cryptid.data import creature as data
-from cryptid.data.init import get_cursor, transaction_with, Cursor
+from cryptid.data.init import Cursor, get_cursor, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 

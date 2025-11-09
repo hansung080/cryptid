@@ -1,12 +1,12 @@
 import os
 
-from fastapi import APIRouter, HTTPException, Query, Body, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.auth import AuthUser
-from cryptid.model.user import PublicUser, SignInUser, PartialUser
-from cryptid.web.auth import user_role, admin_role
+from cryptid.model.user import PartialUser, PublicUser, SignInUser
+from cryptid.web.auth import admin_role, user_role
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import user as service

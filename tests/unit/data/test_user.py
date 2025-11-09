@@ -1,9 +1,9 @@
 import pytest
 
 from cryptid.data import user as data, xuser
-from cryptid.data.init import get_cursor, transaction_with, Cursor
+from cryptid.data.init import Cursor, get_cursor, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, PrivateUser, PartialUser
+from cryptid.model.user import PartialUser, PrivateUser, PublicUser
 from cryptid.service.auth import make_hash
 
 from tests.common import count

@@ -1,6 +1,6 @@
 import os
 
-from cryptid.data.init import get_cursor, transaction, Cursor
+from cryptid.data.init import Cursor, get_cursor, transaction
 from cryptid.model.explorer import Explorer, PartialExplorer
 
 if not os.getenv("CRYPTID_UNIT_TEST"):

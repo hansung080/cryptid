@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from starlette import status
 
 from cryptid.error import AuthenticationError, JWTValidationError
-from cryptid.model.auth import Token, TokenResponse, AuthUser
+from cryptid.model.auth import AuthUser, Token, TokenResponse
 from cryptid.service import auth as service
 
 router = APIRouter(prefix="/auth")

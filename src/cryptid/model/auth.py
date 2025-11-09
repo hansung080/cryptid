@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, ConfigDict, model_serializer
+from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
 
 class Token(BaseModel):

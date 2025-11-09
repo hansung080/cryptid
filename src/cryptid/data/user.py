@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from typing import Any, TypeAlias
 
 from cryptid.data import xuser
-from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cursor, IntegrityError
+from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, PrivateUser, PartialUser
+from cryptid.model.user import PartialUser, PrivateUser, PublicUser
 
 Row: TypeAlias = tuple[int, str, str, str, str, str]
 

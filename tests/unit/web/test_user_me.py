@@ -2,7 +2,7 @@ import pytest
 from fastapi import HTTPException
 
 from cryptid.model.auth import AuthUser
-from cryptid.model.user import PublicUser, SignInUser, PartialUser
+from cryptid.model.user import PartialUser, PublicUser, SignInUser
 from cryptid.web import user as web
 
 from tests.common import count

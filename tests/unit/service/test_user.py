@@ -1,7 +1,7 @@
 import pytest
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, SignInUser, PartialUser
+from cryptid.model.user import PartialUser, PublicUser, SignInUser
 from cryptid.service import user as service
 
 from tests.common import count

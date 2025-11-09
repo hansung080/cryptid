@@ -1,6 +1,6 @@
 import os
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError

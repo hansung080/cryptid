@@ -3,7 +3,7 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI
 
-from cryptid.web import auth, user, explorer, creature
+from cryptid.web import auth, creature, explorer, user
 
 app = FastAPI()
 app.include_router(auth.router)

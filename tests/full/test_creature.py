@@ -6,7 +6,7 @@ from cryptid.main import app
 from cryptid.model.creature import Creature, PartialCreature
 
 from tests.common import count
-from tests.full.common import assert_response, make_headers, admin_token
+from tests.full.common import admin_token, assert_response, make_headers
 
 key_num = count()
 client = TestClient(app)

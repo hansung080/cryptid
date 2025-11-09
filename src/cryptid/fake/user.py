@@ -1,5 +1,5 @@
 from cryptid.fake.data import user as data
-from cryptid.model.user import PublicUser, SignInUser, PrivateUser, PartialUser
+from cryptid.model.user import PartialUser, PrivateUser, PublicUser, SignInUser
 from cryptid.service.auth import make_hash
 
 

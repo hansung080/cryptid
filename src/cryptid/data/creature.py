@@ -1,6 +1,6 @@
 from typing import Any, TypeAlias
 
-from cryptid.data.init import transaction_with, is_unique_constraint_failed, Cursor, IntegrityError
+from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.creature import Creature, PartialCreature
 

@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from starlette import status
 
 from cryptid.main import app
-from cryptid.model.user import SignInUser, PartialUser
+from cryptid.model.user import PartialUser, SignInUser
 
 from tests.common import count
-from tests.full.common import assert_response, make_headers, admin_token, create_token
+from tests.full.common import admin_token, assert_response, create_token, make_headers
 
 key_num = count()
 client = TestClient(app)

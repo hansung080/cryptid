@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from cryptid.data.init import Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
-from cryptid.model.user import PublicUser, PrivateUser, PartialUser
+from cryptid.model.user import PartialUser, PrivateUser, PublicUser
 
 _users = {
     "1": PublicUser(

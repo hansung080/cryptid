@@ -1,15 +1,15 @@
 import os
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import bcrypt
 from dotenv import load_dotenv
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 
 from cryptid.data.init import get_cursor
-from cryptid.error import EntityNotFoundError, AuthenticationError, JWTValidationError
-from cryptid.model.auth import Token, AuthUser
-from cryptid.model.user import PublicUser, PrivateUser
+from cryptid.error import AuthenticationError, EntityNotFoundError, JWTValidationError
+from cryptid.model.auth import AuthUser, Token
+from cryptid.model.user import PrivateUser, PublicUser
 
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data

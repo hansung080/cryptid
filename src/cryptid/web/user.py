@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
@@ -93,8 +95,8 @@ def modify(id_: str, user: PartialUser) -> PublicUser:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
-@router.delete("/me/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
+@router.delete("/me/", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 def delete_me(me: AuthUser = Depends(user_role)) -> None:
     try:
         service.delete(me.id)
@@ -104,8 +106,18 @@ def delete_me(me: AuthUser = Depends(user_role)) -> None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/{id_}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
-@router.delete("/{id_}/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
+@router.delete(
+    "/{id_}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    dependencies=[Depends(admin_role)],
+)
+@router.delete(
+    "/{id_}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    dependencies=[Depends(admin_role)],
+)
 def delete(id_: str) -> None:
     try:
         service.delete(id_)

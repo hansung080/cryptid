@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from cryptid.fake.data import creature as data
 from cryptid.model.creature import Creature, PartialCreature
 

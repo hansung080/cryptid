@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from cryptid.fake.data import user as data
 from cryptid.model.user import PartialUser, PrivateUser, PublicUser, SignInUser
 from cryptid.service.auth import make_hash

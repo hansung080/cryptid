@@ -2,6 +2,8 @@
 #   1. poetry run python3 examples/schemathesis.py
 #   2. poetry run schemathesis run http://localhost:8000/openapi.json
 
+from __future__ import annotations
+
 from typing import Any
 
 import uvicorn

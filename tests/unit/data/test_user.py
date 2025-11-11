@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from cryptid.data import user as data, xuser

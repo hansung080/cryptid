@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from cryptid.fake.data import explorer as data
 from cryptid.model.explorer import Explorer, PartialExplorer
 

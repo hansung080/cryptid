@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class EntityAlreadyExistsError(Exception):
     def __init__(self, entity: str, key: str) -> None:
         self.entity = entity

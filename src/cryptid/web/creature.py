@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -61,8 +63,18 @@ def modify(name: str, creature: PartialCreature) -> Creature:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.delete("/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
-@router.delete("/{name}/", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(admin_role)])
+@router.delete(
+    "/{name}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    dependencies=[Depends(admin_role)],
+)
+@router.delete(
+    "/{name}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
+    dependencies=[Depends(admin_role)],
+)
 def delete(name: str) -> None:
     try:
         service.delete(name)

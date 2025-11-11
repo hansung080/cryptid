@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from cryptid.data.init import Cursor, get_cursor, transaction

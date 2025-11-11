@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from _pytest._code.code import ExceptionInfo
 from fastapi import HTTPException
 from starlette import status

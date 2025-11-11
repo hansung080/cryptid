@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, TypeAlias
 
 from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with

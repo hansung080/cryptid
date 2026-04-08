@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from pathlib import Path
 from sqlite3 import Connection, Cursor, IntegrityError, connect
-from typing import Callable, Concatenate, ParamSpec, TypeAlias, TypeVar
+from typing import Concatenate, ParamSpec, TypeAlias, TypeVar
 
 __all__ = [
     "Connection",
@@ -21,7 +22,7 @@ database: str | None = None
 _conn: Connection | None = None
 
 
-def _init_db(path: str | None = None, reset: bool = False):
+def _init_db(*, path: str | None = None, reset: bool = False):
     global database, _conn
     if _conn:
         if not reset:

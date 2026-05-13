@@ -9,7 +9,7 @@ from cryptid.service.auth import make_hash
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data, xuser
 else:
-    from cryptid.fake.data import user as data
+    from cryptid.fake.data import user as data  # type: ignore[no-redef]
 
 
 @transaction

@@ -12,7 +12,7 @@ from cryptid.web.auth import admin_role
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import creature as service
 else:
-    from cryptid.fake import creature as service
+    from cryptid.fake import creature as service  # type: ignore[no-redef]
 
 router: APIRouter = APIRouter(prefix="/creatures")
 

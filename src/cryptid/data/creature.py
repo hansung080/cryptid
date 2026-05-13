@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeAlias
+from typing import Any, Literal, TypeAlias, overload
 
 from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
@@ -40,6 +40,14 @@ def row_to_model(row: Row) -> Creature:
     )
 
 
+@overload
+def create(cursor: Cursor, creature: Creature, *, fetch: Literal[True] = ...) -> Creature: ...
+@overload
+def create(cursor: Cursor, creature: Creature, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def create(cursor: Cursor, creature: Creature, *, fetch: bool = ...) -> Creature | None: ...
+
+
 def create(cursor: Cursor, creature: Creature, *, fetch: bool = True) -> Creature | None:
     sql = """
     INSERT INTO creature (name, country, area, description, aka)
@@ -75,6 +83,14 @@ def get_one(cursor: Cursor, name: str) -> Creature:
     return row_to_model(row)
 
 
+@overload
+def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: Literal[True] = ...) -> Creature: ...
+@overload
+def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = ...) -> Creature | None: ...
+
+
 def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True) -> Creature | None:
     sql = """
     UPDATE creature
@@ -96,6 +112,14 @@ def replace(cursor: Cursor, name: str, creature: Creature, *, fetch: bool = True
     if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="creature", key=name)
     return get_one(cursor, creature.name) if fetch else None
+
+
+@overload
+def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: Literal[True] = ...) -> Creature: ...
+@overload
+def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = ...) -> Creature | None: ...
 
 
 def modify(cursor: Cursor, name: str, creature: PartialCreature, *, fetch: bool = True) -> Creature | None:

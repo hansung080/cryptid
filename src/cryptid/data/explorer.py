@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeAlias
+from typing import Any, Literal, TypeAlias, overload
 
 from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
@@ -34,6 +34,14 @@ def row_to_model(row: Row) -> Explorer:
         country=country,
         description=description,
     )
+
+
+@overload
+def create(cursor: Cursor, explorer: Explorer, *, fetch: Literal[True] = ...) -> Explorer: ...
+@overload
+def create(cursor: Cursor, explorer: Explorer, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = ...) -> Explorer | None: ...
 
 
 def create(cursor: Cursor, explorer: Explorer, *, fetch: bool = True) -> Explorer | None:
@@ -71,6 +79,14 @@ def get_one(cursor: Cursor, name: str) -> Explorer:
     return row_to_model(row)
 
 
+@overload
+def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: Literal[True] = ...) -> Explorer: ...
+@overload
+def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = ...) -> Explorer | None: ...
+
+
 def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True) -> Explorer | None:
     sql = """
     UPDATE explorer
@@ -90,6 +106,14 @@ def replace(cursor: Cursor, name: str, explorer: Explorer, *, fetch: bool = True
     if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="explorer", key=name)
     return get_one(cursor, explorer.name) if fetch else None
+
+
+@overload
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: Literal[True] = ...) -> Explorer: ...
+@overload
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: bool = ...) -> Explorer | None: ...
 
 
 def modify(cursor: Cursor, name: str, explorer: PartialExplorer, *, fetch: bool = True) -> Explorer | None:

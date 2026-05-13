@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from functools import wraps
 from pathlib import Path
 from sqlite3 import Connection, Cursor, IntegrityError, connect
-from typing import Concatenate, ParamSpec, TypeAlias, TypeVar
+from typing import Concatenate
 
 __all__ = [
     "Connection",
@@ -22,7 +23,7 @@ database: str | None = None
 _conn: Connection | None = None
 
 
-def _init_db(*, path: str | None = None, reset: bool = False):
+def _init_db(*, path: str | None = None, reset: bool = False) -> None:
     global database, _conn
     if _conn:
         if not reset:
@@ -36,16 +37,18 @@ def _init_db(*, path: str | None = None, reset: bool = False):
         db_path = str(db_dir / db_name)
         path = os.getenv("CRYPTID_SQLITE_DB", db_path)
 
-    # isolation_level=None, "DEFERRED" (default), "IMMEDIATE", "EXCLUSIVE"
+    # Isolation Levels:
     # - None: autocommit mode, in which every write SQL is committed immediately.
-    # - DEFERRED: auto-transaction mode, in which a transaction acquires a write lock on first write.
+    # - DEFERRED: auto-transaction mode, in which a transaction acquires a write lock on first write (default).
     # - IMMEDIATE: auto-transaction mode, in which a transaction acquires a write lock on begin.
     # - EXCLUSIVE: auto-transaction mode, in which a transaction acquires a read/write lock on begin.
-    # * Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL
+    #
+    # Notes:
+    # - Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL
     #   not in a transaction, and needs explicit COMMIT/ROLLBACK or the `with conn:` syntax to commit or rollback it.
-    # * Explicit BEGIN <isolation_level>/COMMIT/ROLLBACK creates the <isolation_level> transaction
+    # - Explicit BEGIN <isolation_level>/COMMIT/ROLLBACK creates the <isolation_level> transaction
     #   regardless of the `isolation_level` argument.
-    # * The `with conn:` syntax begins the `isolation_level` transaction if `isolation_level` is not None and
+    # - The `with conn:` syntax begins the `isolation_level` transaction if `isolation_level` is not None and
     #   not in a transaction, and commits or rollbacks it if `isolation_level` is not None.
     database = path
     _conn = connect(database, isolation_level="DEFERRED", check_same_thread=False)
@@ -54,6 +57,7 @@ def _init_db(*, path: str | None = None, reset: bool = False):
 _init_db()
 
 # This is the rough implementation of sqlite3.Connection.ContextManager.
+# ```
 # class Connection:
 #     def __enter__(self):
 #         if self.isolation_level is not None and self.in_transaction == False:
@@ -67,12 +71,15 @@ _init_db()
 #             self.commit()
 #         else:
 #             self.rollback()
+# ```
 
 
 def get_conn(*, new: bool = False) -> Connection:
     if new:
+        assert database is not None
         return connect(database, isolation_level="DEFERRED", check_same_thread=False)
     else:
+        assert _conn is not None
         return _conn
 
 
@@ -80,25 +87,25 @@ def get_cursor(*, new_conn: bool = False) -> Cursor:
     return get_conn(new=new_conn).cursor()
 
 
-P = ParamSpec("P")
-R = TypeVar("R")
-TxFunc: TypeAlias = Callable[Concatenate[Cursor, P], R]
-TxWrapper: TypeAlias = Callable[P, R]
+type _Wrapped[**P, R] = Callable[Concatenate[Cursor, P], R]
+type _Wrapper[**P, R] = Callable[P, R]
 
 
-def transaction(func: TxFunc) -> TxWrapper:
+def transaction[**P, R](wrapped: _Wrapped[P, R]) -> _Wrapper[P, R]:
+    @wraps(wrapped)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         with get_conn() as conn:
-            result = func(conn.cursor(), *args, **kwargs)
+            result = wrapped(conn.cursor(), *args, **kwargs)
             return result
     return wrapper
 
 
-def transaction_with(*, new_conn: bool) -> Callable[[TxFunc], TxWrapper]:
-    def decorator(func: TxFunc) -> TxWrapper:
+def transaction_with[**P, R](*, new_conn: bool) -> Callable[[_Wrapped[P, R]], _Wrapper[P, R]]:
+    def decorator(wrapped: _Wrapped[P, R]) -> _Wrapper[P, R]:
+        @wraps(wrapped)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             with get_conn(new=new_conn) as conn:
-                result = func(conn.cursor(), *args, **kwargs)
+                result = wrapped(conn.cursor(), *args, **kwargs)
                 return result
         return wrapper
     return decorator

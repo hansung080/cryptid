@@ -8,7 +8,7 @@ from cryptid.model.explorer import Explorer, PartialExplorer
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import explorer as data
 else:
-    from cryptid.fake.data import explorer as data
+    from cryptid.fake.data import explorer as data  # type: ignore[no-redef]
 
 
 @transaction

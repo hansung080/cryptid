@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import os
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal, overload
 
 import bcrypt
-from jose import JWTError, jwt
+from jose import JWTError, jwt  # IntelliJ IDEA false-positive warning
 
 from cryptid.data.init import get_cursor
 from cryptid.env import JWT_ALGORITHM, JWT_EXPIRES_IN_MINUTES, JWT_SECRET_KEY
@@ -16,7 +16,7 @@ from cryptid.model.user import PrivateUser, PublicUser
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import user as data
 else:
-    from cryptid.fake.data import user as data
+    from cryptid.fake.data import user as data  # type: ignore[no-redef]
 
 
 def create_token(user_id: str, password: str) -> Token:
@@ -33,6 +33,14 @@ def authenticate_user(id_: str, password: str) -> PrivateUser:
     if not verify_password(password, user.hash):
         raise AuthenticationError(msg=f"wrong password '{password}' for user '{id_}'")
     return user
+
+
+@overload
+def find_user(id_: str, public: Literal[True] = ...) -> PublicUser: ...
+@overload
+def find_user(id_: str, public: Literal[False] = ...) -> PrivateUser: ...
+@overload
+def find_user(id_: str, public: bool = ...) -> PublicUser | PrivateUser: ...
 
 
 def find_user(id_: str, public: bool = True) -> PublicUser | PrivateUser:

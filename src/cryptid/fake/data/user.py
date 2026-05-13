@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Literal, overload
 
 from cryptid.data.init import Cursor
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
 from cryptid.model.user import PartialUser, PrivateUser, PublicUser
+from cryptid.service.auth import make_hash
 
 _users: dict[str, PublicUser] = {
     "1": PublicUser(
@@ -30,6 +32,10 @@ def get_next_id() -> int:
     global _last_id
     _last_id += 1
     return int(_last_id)
+
+
+def make_password(name: str) -> str:
+    return f"{name.lower()}1234"
 
 
 def find(id_: str) -> PublicUser | None:
@@ -60,10 +66,28 @@ def get_all(_: Cursor | None) -> list[PublicUser]:
     return list(_users.values())
 
 
-def get_one(_: Cursor | None, id_: str) -> PublicUser:
+@overload
+def get_one(_: Cursor | None, id_: str, *, public: Literal[True] = ...) -> PublicUser: ...
+@overload
+def get_one(_: Cursor | None, id_: str, *, public: Literal[False] = ...) -> PrivateUser: ...
+@overload
+def get_one(_: Cursor | None, id_: str, *, public: bool = ...) -> PublicUser | PrivateUser: ...
+
+
+def get_one(_: Cursor | None, id_: str, *, public: bool = True) -> PublicUser | PrivateUser:
     if (user := find(id_)) is None:
         raise EntityNotFoundError(entity="user", key=id_)
-    return user
+    if public:
+        return user
+    else:
+        return PrivateUser(
+            id=user.id,
+            name=user.name,
+            roles=user.roles,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            hash=make_hash(make_password(user.name)),
+        )
 
 
 def replace(_: Cursor | None, id_: str, user: PublicUser) -> PublicUser:

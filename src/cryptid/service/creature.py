@@ -8,7 +8,7 @@ from cryptid.model.creature import Creature, PartialCreature
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.data import creature as data
 else:
-    from cryptid.fake.data import creature as data
+    from cryptid.fake.data import creature as data  # type: ignore[no-redef]
 
 
 @transaction

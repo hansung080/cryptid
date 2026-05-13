@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any, TypeAlias
+from typing import Any, Literal, TypeAlias, overload
 
 from cryptid.data.init import Cursor, IntegrityError, is_unique_constraint_failed, transaction_with
 from cryptid.error import EntityAlreadyExistsError, EntityNotFoundError
@@ -41,6 +41,10 @@ def model_to_dict(
     if for_create or for_update:
         now = datetime.now(timezone.utc).isoformat()
         if for_create:
+            assert user.id is not None
+            assert user.created_at is not None
+            assert user.updated_at is not None
+
             user_dict["id"] = int(user.id)
             user_dict["created_at"] = user.created_at.isoformat()
             user_dict["updated_at"] = user.updated_at.isoformat()
@@ -50,37 +54,55 @@ def model_to_dict(
     return user_dict
 
 
+@overload
+def row_to_model(row: Row, *, public: Literal[True] = ...) -> PublicUser: ...
+@overload
+def row_to_model(row: Row, *, public: Literal[False] = ...) -> PrivateUser: ...
+@overload
+def row_to_model(row: Row, *, public: bool = ...) -> PublicUser | PrivateUser: ...
+
+
 def row_to_model(row: Row, *, public: bool = True) -> PublicUser | PrivateUser:
     id_, name, hash_, roles, created_at, updated_at, deleted_at = row
-    id_ = str(id_)
+    id_str = str(id_)
     roles = json.loads(roles)
     # Without the following conversions, pydantic.BaseModel automatically converts the type from str to datetime,
     # but I prefer the explicit conversion.
-    created_at = datetime.fromisoformat(created_at)
-    updated_at = datetime.fromisoformat(updated_at)
-    deleted_at = datetime.fromisoformat(deleted_at)
+    created_at_dt = datetime.fromisoformat(created_at)
+    updated_at_dt = datetime.fromisoformat(updated_at)
+    deleted_at_dt = datetime.fromisoformat(deleted_at)
     if public:
         return PublicUser(
-            id=id_,
+            id=id_str,
             name=name,
             roles=roles,
-            created_at=created_at,
-            updated_at=updated_at,
-            deleted_at=deleted_at,
+            created_at=created_at_dt,
+            updated_at=updated_at_dt,
+            deleted_at=deleted_at_dt,
         )
     else:
         return PrivateUser(
-            id=id_,
+            id=id_str,
             name=name,
             roles=roles,
-            created_at=created_at,
-            updated_at=updated_at,
-            deleted_at=deleted_at,
+            created_at=created_at_dt,
+            updated_at=updated_at_dt,
+            deleted_at=deleted_at_dt,
             hash=hash_,
         )
 
 
+@overload
+def create(cursor: Cursor, user: PrivateUser, *, fetch: Literal[True] = ...) -> PublicUser: ...
+@overload
+def create(cursor: Cursor, user: PrivateUser, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def create(cursor: Cursor, user: PrivateUser, *, fetch: bool = ...) -> PublicUser | None: ...
+
+
 def create(cursor: Cursor, user: PrivateUser, *, fetch: bool = True) -> PublicUser | None:
+    assert user.id is not None
+
     sql = """
     INSERT INTO xuser (id, name, hash, roles, created_at, updated_at, deleted_at)
     VALUES (:id, :name, :hash, :roles, :created_at, :updated_at, :deleted_at)
@@ -103,6 +125,14 @@ def get_all(cursor: Cursor) -> list[PublicUser]:
     return [row_to_model(row) for row in cursor.fetchall()]
 
 
+@overload
+def get_one(cursor: Cursor, id_: str, *, public: Literal[True] = ...) -> PublicUser: ...
+@overload
+def get_one(cursor: Cursor, id_: str, *, public: Literal[False] = ...) -> PrivateUser: ...
+@overload
+def get_one(cursor: Cursor, id_: str, *, public: bool = ...) -> PublicUser | PrivateUser: ...
+
+
 def get_one(cursor: Cursor, id_: str, *, public: bool = True) -> PublicUser | PrivateUser:
     sql = """
     SELECT *
@@ -113,6 +143,14 @@ def get_one(cursor: Cursor, id_: str, *, public: bool = True) -> PublicUser | Pr
     if (row := cursor.fetchone()) is None:
         raise EntityNotFoundError(entity="xuser", key=id_)
     return row_to_model(row, public=public)
+
+
+@overload
+def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: Literal[True] = ...) -> PublicUser: ...
+@overload
+def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: bool = ...) -> PublicUser | None: ...
 
 
 def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: bool = True) -> PublicUser | None:
@@ -129,6 +167,14 @@ def replace(cursor: Cursor, id_: str, user: PublicUser, *, fetch: bool = True) -
     if cursor.rowcount == 0:
         raise EntityNotFoundError(entity="xuser", key=id_)
     return get_one(cursor, id_) if fetch else None
+
+
+@overload
+def modify(cursor: Cursor, id_: str, user: PartialUser, *, fetch: Literal[True] = ...) -> PublicUser: ...
+@overload
+def modify(cursor: Cursor, id_: str, user: PartialUser, *, fetch: Literal[False] = ...) -> None: ...
+@overload
+def modify(cursor: Cursor, id_: str, user: PartialUser, *, fetch: bool = ...) -> PublicUser | None: ...
 
 
 def modify(cursor: Cursor, id_: str, user: PartialUser, *, fetch: bool = True) -> PublicUser | None:

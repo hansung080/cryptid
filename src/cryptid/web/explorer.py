@@ -12,7 +12,7 @@ from cryptid.web.auth import admin_role
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import explorer as service
 else:
-    from cryptid.fake import explorer as service
+    from cryptid.fake import explorer as service  # type: ignore[no-redef]
 
 router: APIRouter = APIRouter(prefix="/explorers")
 

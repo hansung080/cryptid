@@ -13,7 +13,7 @@ from cryptid.web.auth import admin_role, user_role
 if not os.getenv("CRYPTID_UNIT_TEST"):
     from cryptid.service import user as service
 else:
-    from cryptid.fake import user as service
+    from cryptid.fake import user as service  # type: ignore[no-redef]
 
 router: APIRouter = APIRouter(prefix="/users")
 

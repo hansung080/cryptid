@@ -101,7 +101,7 @@ def test_modify_not_found(yeti: Creature) -> None:
 def test_delete(bigfoot: Creature) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
-        assert data.delete(cursor, bigfoot.name) is None
+        data.delete(cursor, bigfoot.name)
     inner()
 
 

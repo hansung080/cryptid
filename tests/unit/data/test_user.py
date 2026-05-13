@@ -72,11 +72,13 @@ def test_get_all() -> None:
 
 
 def test_get_one(mike: PublicUser) -> None:
+    assert mike.id is not None
     resp = data.get_one(get_cursor(), mike.id)
     assert resp == mike
 
 
 def test_get_one_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(EntityNotFoundError):
         _ = data.get_one(get_cursor(), john.id)
 
@@ -84,6 +86,7 @@ def test_get_one_not_found(john: PublicUser) -> None:
 def test_replace(mike: PublicUser, john: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
+        assert mike.id is not None
         resp = data.replace(cursor, mike.id, john)
         mike.name = john.name
         mike.roles = john.roles
@@ -95,6 +98,7 @@ def test_replace(mike: PublicUser, john: PublicUser) -> None:
 def test_replace_not_found(john: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
+        assert john.id is not None
         with pytest.raises(EntityNotFoundError):
             _ = data.replace(cursor, john.id, john)
     inner()
@@ -103,6 +107,7 @@ def test_replace_not_found(john: PublicUser) -> None:
 def test_modify(mike: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
+        assert mike.id is not None
         mike.roles = ["user", "admin"]
         resp = data.modify(cursor, mike.id, PartialUser(roles=mike.roles))
         mike.updated_at = resp.updated_at
@@ -113,6 +118,7 @@ def test_modify(mike: PublicUser) -> None:
 def test_modify_not_found(john: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
+        assert john.id is not None
         with pytest.raises(EntityNotFoundError):
             _ = data.modify(cursor, john.id, PartialUser())
     inner()
@@ -121,7 +127,8 @@ def test_modify_not_found(john: PublicUser) -> None:
 def test_delete(mike: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
-        assert data.delete(cursor, mike.id) is None
+        assert mike.id is not None
+        data.delete(cursor, mike.id)
         resp = xuser.get_one(cursor, mike.id)
         mike.deleted_at = resp.deleted_at
         assert resp == mike
@@ -131,6 +138,7 @@ def test_delete(mike: PublicUser) -> None:
 def test_delete_not_found(john: PublicUser) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
+        assert john.id is not None
         with pytest.raises(EntityNotFoundError):
             data.delete(cursor, john.id)
     inner()

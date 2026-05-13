@@ -10,7 +10,7 @@ def pytest_cmdline_main(config: pytest.Config) -> int | None:
     if not args or args[0] == "tests":
         cmds = [
             ["pytest", "tests/unit"],
-            # ["pytest", "tests/integration"],
+            ["pytest", "tests/integration"],
             ["pytest", "tests/full"],
         ]
         for cmd in cmds:
@@ -18,3 +18,4 @@ def pytest_cmdline_main(config: pytest.Config) -> int | None:
             if result.returncode != 0:
                 return result.returncode
         return 0
+    return None

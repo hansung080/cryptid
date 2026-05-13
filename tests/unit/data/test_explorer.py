@@ -97,7 +97,7 @@ def test_modify_not_found(claude: Explorer) -> None:
 def test_delete(noah: Explorer) -> None:
     @transaction_with(new_conn=False)
     def inner(cursor: Cursor) -> None:
-        assert data.delete(cursor, noah.name) is None
+        data.delete(cursor, noah.name)
     inner()
 
 

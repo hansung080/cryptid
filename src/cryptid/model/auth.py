@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any, cast
 
-from pydantic import BaseModel, ConfigDict, Field, model_serializer
+from pydantic import BaseModel, ConfigDict, Field, SerializerFunctionWrapHandler, model_serializer
 
 
 class Token(BaseModel):
@@ -23,8 +24,8 @@ class TokenResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     @model_serializer(mode="wrap")
-    def serialize(self, handler):
-        data = handler(self)
+    def serialize(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        data = cast(dict[str, Any], handler(self))
         if self.refresh is None:
             data.pop("refresh_token", None)
         return data

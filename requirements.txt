@@ -10,7 +10,7 @@ cffi==2.0.0
 charset-normalizer==3.4.3
 click==8.2.1
 colorama==0.4.6
--e git+ssh://git@github.com/hansung080/cryptid.git@fd351845456d7526cb56a231b3f42f4e7615b226#egg=cryptid
+-e git+ssh://git@github.com/hansung080/cryptid.git@90798937bc1bc703feb4420e2e4638718940daa5#egg=cryptid
 cryptography==45.0.7
 dnspython==2.8.0
 ecdsa==0.19.1

@@ -27,6 +27,7 @@ class PublicUser(BaseModel):
     deleted_at: str | None = None
 
     def to_auth_user(self) -> AuthUser:
+        assert self.id is not None
         return AuthUser(
             id=self.id,
             roles=self.roles,

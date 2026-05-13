@@ -4,7 +4,7 @@ import os
 
 os.environ["UNIT_TEST"] = "true"
 
-import mod2
+from examples.test_double import mod2
 
 
 def test_summer_fake() -> None:

@@ -45,3 +45,9 @@ xfail_strict = true
 env = [
     "CRYPTID_SQLITE_DB=:memory:",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+mypy_path = "src"
+strict = true
+explicit_package_bases = true

@@ -50,6 +50,7 @@ def create_user(user: SignInUser) -> PublicUser:
 
 
 def create_token(user: SignInUser) -> TokenResponse:
+    assert user.id is not None
     resp = client.post("/auth/token", data={"username": user.id, "password": user.password})
     assert resp.status_code == status.HTTP_201_CREATED
     return TokenResponse.model_validate(resp.json())

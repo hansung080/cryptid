@@ -64,16 +64,19 @@ def test_get_all() -> None:
 
 
 def test_get_one(mike: PublicUser) -> None:
+    assert mike.id is not None
     resp = service.get_one(mike.id)
     assert resp == mike
 
 
 def test_get_one_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(EntityNotFoundError):
         _ = service.get_one(john.id)
 
 
 def test_replace(mike: PublicUser, john: PublicUser) -> None:
+    assert mike.id is not None
     resp = service.replace(mike.id, john)
     mike.name = john.name
     mike.roles = john.roles
@@ -82,11 +85,13 @@ def test_replace(mike: PublicUser, john: PublicUser) -> None:
 
 
 def test_replace_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(EntityNotFoundError):
         _ = service.replace(john.id, john)
 
 
 def test_modify(mike: PublicUser) -> None:
+    assert mike.id is not None
     mike.roles = ["user", "admin"]
     resp = service.modify(mike.id, PartialUser(roles=mike.roles))
     mike.updated_at = resp.updated_at
@@ -94,14 +99,17 @@ def test_modify(mike: PublicUser) -> None:
 
 
 def test_modify_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(EntityNotFoundError):
         _ = service.modify(john.id, PartialUser())
 
 
 def test_delete(mike: PublicUser) -> None:
-    assert service.delete(mike.id) is None
+    assert mike.id is not None
+    service.delete(mike.id)
 
 
 def test_delete_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(EntityNotFoundError):
         service.delete(john.id)

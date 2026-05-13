@@ -31,10 +31,10 @@ class SignInUser(PublicUser):
 
     @field_validator("password")
     @staticmethod
-    def validate_password(password: str):
+    def validate_password(password: str) -> str:
         password = password.strip()
         if not password:
-            return ValueError("field 'password' cannot be empty or whitespace")
+            raise ValueError("field 'password' cannot be empty or whitespace")
         return password
 
 

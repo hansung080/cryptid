@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import mod1
+from examples.mocking import mod1
 
 
 def summer(x: int, y: int) -> str:

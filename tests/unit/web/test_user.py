@@ -66,17 +66,20 @@ def test_get_all() -> None:
 
 
 def test_get_one(mike: PublicUser) -> None:
+    assert mike.id is not None
     resp = web.get_one(mike.id, deleted=False)
     assert resp == mike
 
 
 def test_get_one_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(HTTPException) as e:
         _ = web.get_one(john.id, deleted=False)
         assert_not_found_error(e)
 
 
 def test_replace(mike: PublicUser, john: PublicUser) -> None:
+    assert mike.id is not None
     resp = web.replace(mike.id, john)
     mike.name = john.name
     mike.roles = john.roles
@@ -85,12 +88,14 @@ def test_replace(mike: PublicUser, john: PublicUser) -> None:
 
 
 def test_replace_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(HTTPException) as e:
         _ = web.replace(john.id, john)
         assert_not_found_error(e)
 
 
 def test_modify(mike: PublicUser) -> None:
+    assert mike.id is not None
     mike.roles = ["user", "admin"]
     resp = web.modify(mike.id, PartialUser(roles=mike.roles))
     mike.updated_at = resp.updated_at
@@ -98,16 +103,19 @@ def test_modify(mike: PublicUser) -> None:
 
 
 def test_modify_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(HTTPException) as e:
         _ = web.modify(john.id, PartialUser())
         assert_not_found_error(e)
 
 
 def test_delete(mike: PublicUser) -> None:
-    assert web.delete(mike.id) is None
+    assert mike.id is not None
+    web.delete(mike.id)
 
 
 def test_delete_not_found(john: PublicUser) -> None:
+    assert john.id is not None
     with pytest.raises(HTTPException) as e:
         web.delete(john.id)
         assert_not_found_error(e)

@@ -38,10 +38,10 @@ def _init_db(*, path: str | None = None, reset: bool = False) -> None:
         path = os.getenv("CRYPTID_SQLITE_DB", db_path)
 
     # Isolation Levels:
-    #   None:      autocommit mode, in which every write SQL is committed immediately.
-    #   DEFERRED:  auto-transaction mode, in which a transaction acquires a write lock on first write (default).
-    #   IMMEDIATE: auto-transaction mode, in which a transaction acquires a write lock on begin.
-    #   EXCLUSIVE: auto-transaction mode, in which a transaction acquires a read/write lock on begin.
+    #   None:      Autocommit mode, in which every write SQL is committed immediately
+    #   DEFERRED:  Auto-transaction mode, in which a transaction acquires a write lock on first write (default)
+    #   IMMEDIATE: Auto-transaction mode, in which a transaction acquires a write lock on begin
+    #   EXCLUSIVE: Auto-transaction mode, in which a transaction acquires a read/write lock on begin
     #
     # Notes:
     #   - Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL

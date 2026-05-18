@@ -38,18 +38,18 @@ def _init_db(*, path: str | None = None, reset: bool = False) -> None:
         path = os.getenv("CRYPTID_SQLITE_DB", db_path)
 
     # Isolation Levels:
-    # - None: autocommit mode, in which every write SQL is committed immediately.
-    # - DEFERRED: auto-transaction mode, in which a transaction acquires a write lock on first write (default).
-    # - IMMEDIATE: auto-transaction mode, in which a transaction acquires a write lock on begin.
-    # - EXCLUSIVE: auto-transaction mode, in which a transaction acquires a read/write lock on begin.
+    #   None:      autocommit mode, in which every write SQL is committed immediately.
+    #   DEFERRED:  auto-transaction mode, in which a transaction acquires a write lock on first write (default).
+    #   IMMEDIATE: auto-transaction mode, in which a transaction acquires a write lock on begin.
+    #   EXCLUSIVE: auto-transaction mode, in which a transaction acquires a read/write lock on begin.
     #
     # Notes:
-    # - Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL
-    #   not in a transaction, and needs explicit COMMIT/ROLLBACK or the `with conn:` syntax to commit or rollback it.
-    # - Explicit BEGIN <isolation_level>/COMMIT/ROLLBACK creates the <isolation_level> transaction
-    #   regardless of the `isolation_level` argument.
-    # - The `with conn:` syntax begins the `isolation_level` transaction if `isolation_level` is not None and
-    #   not in a transaction, and commits or rollbacks it if `isolation_level` is not None.
+    #   - Auto-transaction mode implicitly begins the `isolation_level` transaction on the first write SQL
+    #     not in a transaction, and needs explicit COMMIT/ROLLBACK or the `with conn:` syntax to commit or rollback it.
+    #   - Explicit BEGIN <isolation_level>/COMMIT/ROLLBACK creates the <isolation_level> transaction
+    #     regardless of the `isolation_level` argument.
+    #   - The `with conn:` syntax begins the `isolation_level` transaction if `isolation_level` is not None and
+    #     not in a transaction, and commits or rollbacks it if `isolation_level` is not None.
     database = path
     _conn = connect(database, isolation_level="DEFERRED", check_same_thread=False)
 
